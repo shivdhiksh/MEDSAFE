@@ -1,0 +1,42 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Data and SQLite databases
+data/*
+!data/.gitkeep
+
+# Backups
+backups/*
+!backups/.gitkeep
+
+# Testing and caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Operating system artifacts
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor settings
+.vscode/
+.idea/
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+!medsafe.spec
+
+# Application logs
+logs/*
+!logs/.gitkeep
