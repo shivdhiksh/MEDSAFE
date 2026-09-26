@@ -68,7 +68,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,
+    icon='assets/icons/medsafe.ico',
 )
 
 coll = COLLECT(

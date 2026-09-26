@@ -19,7 +19,7 @@ from typing import Any, List
 # Core App Metadata
 APP_NAME: str = "MedSafe"
 APP_FULL_TITLE: str = "MEDSAFE — Offline Medicine Expiry Tracker"
-APP_VERSION: str = "1.0.0"
+APP_VERSION: str = "1.1.0"
 APP_ID: str = "MedSafe"
 
 # Safety and Compliance Disclaimer
@@ -91,7 +91,22 @@ def get_logs_dir() -> Path:
 
 def get_assets_dir() -> Path:
     """Return directory for read-only bundled assets (icons, images)."""
-    return get_app_root() / "assets"
+    app_root = get_app_root()
+    if (app_root / "assets").exists():
+        return app_root / "assets"
+    if (app_root / "_internal" / "assets").exists():
+        return app_root / "_internal" / "assets"
+    return app_root / "assets"
+
+
+def get_icon_path() -> Path:
+    """Return path to the active application icon (.ico file)."""
+    return get_assets_dir() / "icons" / "medsafe.ico"
+
+
+def get_icon_png_path() -> Path:
+    """Return path to the active application icon (.png file)."""
+    return get_assets_dir() / "icons" / "medsafe.png"
 
 
 def get_db_path() -> Path:
@@ -145,6 +160,8 @@ def __dir__() -> List[str]:
         "get_backups_dir",
         "get_logs_dir",
         "get_assets_dir",
+        "get_icon_path",
+        "get_icon_png_path",
         "get_db_path",
         "ensure_directories_exist",
     ]

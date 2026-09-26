@@ -1,6 +1,19 @@
 # MEDSAFE — Offline Medicine Expiry Tracker
 
-MedSafe is a free, private, offline-first Windows desktop application designed to track medicine expiry dates locally, protecting households from accidentally using expired medications.
+MedSafe is a free, private, offline-first Windows desktop application designed to help households track medicine expiry dates locally. Version 1.1.0 introduces a reference-crafted glassmorphism visual experience, new brand identity, and enhanced inventory organization.
+
+---
+
+## ✨ What's New in Version 1.1.0
+
+- **Premium Glassmorphism Experience**: Redesigned desktop interface featuring translucent frosted surfaces, floating rounded panels, inner border highlights, and tactile hover states.
+- **Atmospheric Visual Themes**:
+  - **Aurora Glass (Dark Mode)**: Deep obsidian backdrop with soft, out-of-focus cyan, blue, and purple ambient studio lighting.
+  - **Pearl Glass (Light Mode)**: Frosted translucent white surfaces with gentle pastel lavender and sky blue ambient illumination.
+- **New Official Branding & Iconography**: Custom-designed medicine capsule application icon and Windows executable/installer icon assets (`medsafe.ico` and `medsafe.png`).
+- **Comprehensive Inventory Control**: Real-time live search, multi-criteria sorting (Nearest Expiry, Farthest Expiry, Name A-Z, Name Z-A), and status/storage location filtering.
+- **Configurable Toast Reminders**: Customized Windows notification alert thresholds with automatic same-day duplicate alert suppression.
+- **Zero-Cloud Local Privacy**: 100% offline local SQLite storage with instant one-click CSV and JSON backup exports.
 
 ---
 
@@ -8,14 +21,14 @@ MedSafe is a free, private, offline-first Windows desktop application designed t
 
 > **MEDSAFE helps organize medicine expiry information. It does not provide medical advice. Always verify the original packaging and consult a pharmacist or healthcare professional if you are unsure whether a medicine can be used.**
 
-MedSafe does not make safety judgments, determine medical efficacy, or provide dosage recommendations.
+MedSafe does not make medical safety judgments, determine therapeutic efficacy, or provide dosage recommendations.
 
 ---
 
 ## 👤 End Users Guide
 
 ### 1. Installation
-1. Download `MedSafe_Setup_v1.0.exe`.
+1. Download `MedSafe_Setup_v1.1.0.exe`.
 2. Double-click the installer to run the setup wizard.
 3. **No Administrator Rights Required**: MedSafe installs into your personal user profile:
    ```text
@@ -66,7 +79,7 @@ $$\text{Frontend View} \longrightarrow \text{Backend Service} \longrightarrow \t
 ### 2. Prerequisites
 - **Operating System**: Windows 10 or Windows 11.
 - **Python**: Python 3.11 or newer (Python 3.13 recommended).
-- **Inno Setup**: Version 6 (for building the Windows installer).
+- **Inno Setup**: Version 6 (for compiling the Windows installer).
 
 ### 3. Running From Source
 1. Open PowerShell in the project directory:
@@ -91,19 +104,19 @@ pytest -v
 ```
 
 ### 5. Building the Standalone Executable (PyInstaller ONEDIR)
-Compile the standalone distribution with CustomTkinter asset bundling:
+Compile the standalone distribution with CustomTkinter assets and official icon:
 ```powershell
 pip install pyinstaller
 pyinstaller medsafe.spec --noconfirm --clean
 ```
-Output directory: `dist/MedSafe/` containing `MedSafe.exe` and `_internal/`.
+Output directory: `dist/MedSafe/` containing `MedSafe.exe`, `assets/`, and bundled libraries.
 
 ### 6. Building the Windows Installer (Inno Setup)
 Compile the single-file setup wizard:
 ```powershell
 & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" setup.iss
 ```
-Output installer: `dist/installer/MedSafe_Setup_v1.0.exe`.
+Output installer: `dist/installer/MedSafe_Setup_v1.1.0.exe`.
 
 ---
 

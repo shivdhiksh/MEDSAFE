@@ -1,6 +1,7 @@
 """Reusable status badge component for MEDSAFE.
 
-Renders an accessible pill badge with both high-contrast color and explicit status text.
+Renders an accessible, high-contrast pill badge with distinct color styling,
+a bullet dot indicator, and explicit status text.
 """
 
 from typing import Tuple
@@ -11,7 +12,17 @@ from backend.services.expiry_service import (
     STATUS_EXPIRING_SOON,
     STATUS_VALID,
 )
-from frontend.config import FONT_CAPTION
+from frontend.config import (
+    FONT_BADGE,
+    STATUS_EXPIRED_BG,
+    STATUS_EXPIRED_TEXT,
+    STATUS_EXPIRING_BG,
+    STATUS_EXPIRING_TEXT,
+    STATUS_INACTIVE_BG,
+    STATUS_INACTIVE_TEXT,
+    STATUS_VALID_BG,
+    STATUS_VALID_TEXT,
+)
 
 
 class StatusBadge(ctk.CTkLabel):
@@ -24,10 +35,10 @@ class StatusBadge(ctk.CTkLabel):
         super().__init__(
             master,
             text=text_label,
-            font=(FONT_CAPTION[0], FONT_CAPTION[1], "bold"),
+            font=FONT_BADGE,
             fg_color=fg_color,
             text_color=text_color,
-            corner_radius=6,
+            corner_radius=10,
             padx=10,
             pady=3,
             **kwargs,
@@ -37,31 +48,31 @@ class StatusBadge(ctk.CTkLabel):
         """Return (display_text, fg_color_tuple, text_color_tuple) for a status."""
         if status == STATUS_VALID:
             return (
-                "Valid",
-                ("#DCFCE7", "#14532D"),
-                ("#15803D", "#86EFAC"),
+                "● Valid",
+                STATUS_VALID_BG,
+                STATUS_VALID_TEXT,
             )
-        elif status in (STATUS_EXPIRING_SOON, "expiring soon"):
+        elif status in (STATUS_EXPIRING_SOON, "expiring soon", "expiring_soon"):
             return (
-                "Expiring Soon",
-                ("#FEF3C7", "#78350F"),
-                ("#B45309", "#FCD34D"),
+                "● Expiring Soon",
+                STATUS_EXPIRING_BG,
+                STATUS_EXPIRING_TEXT,
             )
-        elif status == STATUS_EXPIRED:
+        elif status in (STATUS_EXPIRED, "expired", "status_expired"):
             return (
-                "Expired",
-                ("#FEE2E2", "#7F1D1D"),
-                ("#B91C1C", "#FCA5A5"),
+                "● Expired",
+                STATUS_EXPIRED_BG,
+                STATUS_EXPIRED_TEXT,
             )
         elif status in ("disposed", "inactive"):
             return (
-                "Disposed",
-                ("#F1F5F9", "#1E293B"),
-                ("#64748B", "#94A3B8"),
+                "● Disposed",
+                STATUS_INACTIVE_BG,
+                STATUS_INACTIVE_TEXT,
             )
         else:
             return (
-                status.title(),
-                ("#F1F5F9", "#1E293B"),
-                ("#475569", "#94A3B8"),
+                f"● {status.title()}",
+                STATUS_INACTIVE_BG,
+                STATUS_INACTIVE_TEXT,
             )

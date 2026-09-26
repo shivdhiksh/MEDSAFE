@@ -3,7 +3,7 @@
 ; Per-User Windows Installation (No Admin Rights Required)
 
 #define MyAppName "MEDSAFE"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Shiva Dhikshith"
 #define MyAppURL "https://github.com/shivad18/MEDSAFE"
 #define MyAppExeName "MedSafe.exe"
@@ -23,7 +23,8 @@ DisableProgramGroupPage=yes
 ; Per-user installation model: no administrator elevation required
 PrivilegesRequired=lowest
 OutputDir=dist\installer
-OutputBaseFilename=MedSafe_Setup_v1.0
+OutputBaseFilename=MedSafe_Setup_v1.1.0
+SetupIconFile=assets\icons\medsafe.ico
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
@@ -38,12 +39,13 @@ Name: "scheduledtask"; Description: "Enable daily 9:00 AM expiry check notificat
 
 [Files]
 Source: "dist\MedSafe\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "assets\icons\*"; DestDir: "{app}\assets\icons"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Do NOT include data/medsafe.db or backups/ here to ensure clean user state.
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\icons\medsafe.ico"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{userdesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\assets\icons\medsafe.ico"
 
 [Run]
 ; Optional Windows Scheduled Task creation

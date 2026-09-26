@@ -15,18 +15,42 @@ from backend.services.expiry_service import (
 )
 from backend.services.inventory_service import InventoryService
 from frontend.components.confirmation_dialog import ConfirmationDialog
+from frontend.components.glass_card import GlassCard, GlassCardHover
 from frontend.components.medicine_form import MEDICINE_TYPES
 from frontend.components.status_badge import StatusBadge
 from frontend.config import (
+    COLOR_BORDER,
+    COLOR_BTN_SECONDARY,
+    COLOR_BTN_SECONDARY_HOVER,
+    COLOR_BTN_SECONDARY_TEXT,
     COLOR_CARD,
+    COLOR_CARD_ELEVATED,
+    COLOR_CARD_HOVER,
+    COLOR_DANGER,
+    COLOR_DANGER_HOVER,
+    COLOR_DANGER_SUBTLE,
+    COLOR_DANGER_TEXT,
+    COLOR_DIVIDER,
+    COLOR_INPUT_BG,
+    COLOR_INPUT_BORDER,
     COLOR_PRIMARY,
     COLOR_PRIMARY_HOVER,
+    COLOR_TEXT_MUTED,
+    COLOR_TEXT_PRIMARY,
+    COLOR_TEXT_SECONDARY,
     FONT_BODY,
     FONT_BODY_BOLD,
     FONT_CAPTION,
+    FONT_CAPTION_BOLD,
     FONT_SECTION,
     FONT_SUBTITLE,
     FONT_TITLE,
+    STATUS_EXPIRED,
+    STATUS_EXPIRED_BG,
+    STATUS_EXPIRED_TEXT,
+    STATUS_VALID,
+    STATUS_VALID_BG,
+    STATUS_VALID_TEXT,
 )
 
 
@@ -66,15 +90,22 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
 
     def _render_not_found(self) -> None:
         """Display not found notice if record was removed."""
-        card = ctk.CTkFrame(self, fg_color=COLOR_CARD, corner_radius=10)
+        card = GlassCard(self)
         card.pack(fill="x", padx=16, pady=32)
 
-        ctk.CTkLabel(card, text="Medicine not found.", font=FONT_SECTION).pack(pady=(24, 8))
+        ctk.CTkLabel(card, text="⚠️", font=(FONT_TITLE[0], 36)).pack(pady=(24, 6))
+        ctk.CTkLabel(card, text="Medicine record not found.", font=FONT_SECTION, text_color=COLOR_TEXT_PRIMARY).pack(pady=(0, 6))
+        ctk.CTkLabel(card, text="This medicine may have been deleted.", font=FONT_CAPTION, text_color=COLOR_TEXT_MUTED).pack(pady=(0, 20))
+
         if self.on_back_callback is not None:
             ctk.CTkButton(
                 card,
                 text="← Back to Inventory",
                 font=FONT_BODY,
+                fg_color=COLOR_BTN_SECONDARY,
+                hover_color=COLOR_BTN_SECONDARY_HOVER,
+                text_color=COLOR_BTN_SECONDARY_TEXT,
+                corner_radius=8,
                 command=self.on_back_callback,
             ).pack(pady=(0, 24))
 
@@ -91,9 +122,10 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
                 font=FONT_BODY,
                 width=140,
                 height=34,
-                fg_color=("gray85", "gray30"),
-                hover_color=("gray75", "gray40"),
-                text_color=("black", "white"),
+                corner_radius=8,
+                fg_color=COLOR_BTN_SECONDARY,
+                hover_color=COLOR_BTN_SECONDARY_HOVER,
+                text_color=COLOR_BTN_SECONDARY_TEXT,
                 command=self.on_back_callback,
             )
             back_btn.grid(row=0, column=0, padx=(0, 16), sticky="w")
@@ -105,18 +137,20 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             title_box,
             text=detail.medicine.name,
             font=FONT_TITLE,
+            text_color=COLOR_TEXT_PRIMARY,
             anchor="w",
         )
         title.pack(anchor="w")
 
         delete_btn = ctk.CTkButton(
             header,
-            text="Delete Medicine",
+            text="🗑️ Delete Medicine",
             font=FONT_BODY_BOLD,
-            fg_color=("#FEE2E2", "#7F1D1D"),
-            hover_color=("#EF4444", "#991B1B"),
-            text_color=("#991B1B", "#FEE2E2"),
+            fg_color=COLOR_DANGER_SUBTLE,
+            hover_color=COLOR_DANGER,
+            text_color=COLOR_DANGER_TEXT,
             height=34,
+            corner_radius=8,
             command=lambda: self._prompt_delete_medicine(detail.medicine.name),
         )
         delete_btn.grid(row=0, column=2, sticky="e")
@@ -144,24 +178,22 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
 
     def _build_medicine_card(self, detail: MedicineDetail) -> None:
         """Card for displaying and editing medicine details."""
-        card = ctk.CTkFrame(
-            self,
-            fg_color=COLOR_CARD,
-            corner_radius=10,
-            border_width=1,
-            border_color=("gray85", "gray30"),
-        )
+        card = GlassCard(self)
         card.grid(row=1, column=0, sticky="ew", pady=(0, 20))
         card.grid_columnconfigure((0, 1), weight=1)
 
         # Header with Save Changes action
         sec_header = ctk.CTkFrame(card, fg_color="transparent")
-        sec_header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=16, pady=(16, 8))
+        sec_header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=18, pady=(16, 8))
         sec_header.grid_columnconfigure(0, weight=1)
 
-        ctk.CTkLabel(sec_header, text="Medicine Profile", font=FONT_SECTION, anchor="w").grid(
-            row=0, column=0, sticky="w"
-        )
+        ctk.CTkLabel(
+            sec_header,
+            text="Medicine Profile",
+            font=FONT_SECTION,
+            text_color=COLOR_TEXT_PRIMARY,
+            anchor="w",
+        ).grid(row=0, column=0, sticky="w")
 
         self.med_feedback = ctk.CTkLabel(
             sec_header,
@@ -169,58 +201,107 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             font=FONT_BODY_BOLD,
             corner_radius=6,
             height=28,
+            padx=10,
         )
 
         # Fields Grid
         # 1. Medicine Name
         name_box = ctk.CTkFrame(card, fg_color="transparent")
-        name_box.grid(row=1, column=0, padx=16, pady=6, sticky="ew")
-        ctk.CTkLabel(name_box, text="Medicine Name *", font=FONT_BODY_BOLD, anchor="w").pack(fill="x")
-        self.name_entry = ctk.CTkEntry(name_box, font=FONT_BODY, height=34)
+        name_box.grid(row=1, column=0, padx=18, pady=6, sticky="ew")
+        ctk.CTkLabel(name_box, text="Medicine Name *", font=FONT_BODY_BOLD, text_color=COLOR_TEXT_PRIMARY, anchor="w").pack(fill="x")
+        self.name_entry = ctk.CTkEntry(
+            name_box,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         self.name_entry.insert(0, detail.medicine.name)
         self.name_entry.pack(fill="x", pady=(2, 0))
 
         # 2. Strength
         strength_box = ctk.CTkFrame(card, fg_color="transparent")
-        strength_box.grid(row=1, column=1, padx=16, pady=6, sticky="ew")
-        ctk.CTkLabel(strength_box, text="Strength", font=FONT_BODY, anchor="w").pack(fill="x")
-        self.strength_entry = ctk.CTkEntry(strength_box, font=FONT_BODY, height=34)
+        strength_box.grid(row=1, column=1, padx=18, pady=6, sticky="ew")
+        ctk.CTkLabel(strength_box, text="Strength", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(fill="x")
+        self.strength_entry = ctk.CTkEntry(
+            strength_box,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         if detail.medicine.strength:
             self.strength_entry.insert(0, detail.medicine.strength)
         self.strength_entry.pack(fill="x", pady=(2, 0))
 
         # 3. Manufacturer
         mfr_box = ctk.CTkFrame(card, fg_color="transparent")
-        mfr_box.grid(row=2, column=0, padx=16, pady=6, sticky="ew")
-        ctk.CTkLabel(mfr_box, text="Manufacturer", font=FONT_BODY, anchor="w").pack(fill="x")
-        self.mfr_entry = ctk.CTkEntry(mfr_box, font=FONT_BODY, height=34)
+        mfr_box.grid(row=2, column=0, padx=18, pady=6, sticky="ew")
+        ctk.CTkLabel(mfr_box, text="Manufacturer", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(fill="x")
+        self.mfr_entry = ctk.CTkEntry(
+            mfr_box,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         if detail.medicine.manufacturer:
             self.mfr_entry.insert(0, detail.medicine.manufacturer)
         self.mfr_entry.pack(fill="x", pady=(2, 0))
 
         # 4. Medicine Type
         type_box = ctk.CTkFrame(card, fg_color="transparent")
-        type_box.grid(row=2, column=1, padx=16, pady=6, sticky="ew")
-        ctk.CTkLabel(type_box, text="Medicine Form / Type", font=FONT_BODY, anchor="w").pack(fill="x")
-        self.type_menu = ctk.CTkOptionMenu(type_box, values=MEDICINE_TYPES, font=FONT_BODY, height=34)
+        type_box.grid(row=2, column=1, padx=18, pady=6, sticky="ew")
+        ctk.CTkLabel(type_box, text="Medicine Form / Type", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(fill="x")
+        self.type_menu = ctk.CTkOptionMenu(
+            type_box,
+            values=MEDICINE_TYPES,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            button_color=COLOR_PRIMARY,
+            button_hover_color=COLOR_PRIMARY_HOVER,
+            dropdown_fg_color=COLOR_CARD,
+            dropdown_hover_color=COLOR_INPUT_BG,
+            dropdown_text_color=COLOR_TEXT_PRIMARY,
+            text_color=COLOR_TEXT_PRIMARY,
+            corner_radius=8,
+        )
         curr_type = detail.medicine.medicine_type or MEDICINE_TYPES[0]
         self.type_menu.set(curr_type if curr_type in MEDICINE_TYPES else MEDICINE_TYPES[0])
         self.type_menu.pack(fill="x", pady=(2, 0))
 
         # 5. Barcode
         barcode_box = ctk.CTkFrame(card, fg_color="transparent")
-        barcode_box.grid(row=3, column=0, padx=16, pady=6, sticky="ew")
-        ctk.CTkLabel(barcode_box, text="Barcode", font=FONT_BODY, anchor="w").pack(fill="x")
-        self.barcode_entry = ctk.CTkEntry(barcode_box, font=FONT_BODY, height=34)
+        barcode_box.grid(row=3, column=0, padx=18, pady=6, sticky="ew")
+        ctk.CTkLabel(barcode_box, text="Barcode", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(fill="x")
+        self.barcode_entry = ctk.CTkEntry(
+            barcode_box,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         if detail.medicine.barcode:
             self.barcode_entry.insert(0, detail.medicine.barcode)
         self.barcode_entry.pack(fill="x", pady=(2, 0))
 
         # 6. Notes
         notes_box = ctk.CTkFrame(card, fg_color="transparent")
-        notes_box.grid(row=3, column=1, padx=16, pady=6, sticky="ew")
-        ctk.CTkLabel(notes_box, text="Notes", font=FONT_BODY, anchor="w").pack(fill="x")
-        self.notes_entry = ctk.CTkEntry(notes_box, font=FONT_BODY, height=34)
+        notes_box.grid(row=3, column=1, padx=18, pady=6, sticky="ew")
+        ctk.CTkLabel(notes_box, text="Notes", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(fill="x")
+        self.notes_entry = ctk.CTkEntry(
+            notes_box,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         if detail.medicine.notes:
             self.notes_entry.insert(0, detail.medicine.notes)
         self.notes_entry.pack(fill="x", pady=(2, 0))
@@ -232,10 +313,12 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             font=FONT_BODY_BOLD,
             fg_color=COLOR_PRIMARY,
             hover_color=COLOR_PRIMARY_HOVER,
+            text_color="white",
             height=36,
+            corner_radius=8,
             command=self._save_medicine_changes,
         )
-        save_btn.grid(row=4, column=0, columnspan=2, padx=16, pady=(12, 16), sticky="e")
+        save_btn.grid(row=4, column=0, columnspan=2, padx=18, pady=(12, 16), sticky="e")
 
     def _save_medicine_changes(self) -> None:
         """Submit medicine profile changes to service."""
@@ -262,39 +345,34 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
         """Show inline status message for medicine profile edits."""
         if is_error:
             self.med_feedback.configure(
-                text=msg,
-                fg_color=("#FEE2E2", "#7F1D1D"),
-                text_color=("#991B1B", "#FCA5A5"),
+                text="⚠️ " + msg,
+                fg_color=STATUS_EXPIRED_BG,
+                text_color=STATUS_EXPIRED_TEXT,
             )
         else:
             self.med_feedback.configure(
-                text=msg,
-                fg_color=("#DCFCE7", "#14532D"),
-                text_color=("#166534", "#86EFAC"),
+                text="✓ " + msg,
+                fg_color=STATUS_VALID_BG,
+                text_color=STATUS_VALID_TEXT,
             )
         self.med_feedback.grid(row=0, column=1, sticky="e", padx=(8, 0))
 
     def _build_batches_section(self, detail: MedicineDetail) -> None:
         """Section listing all batches for this medicine with Add Batch form."""
-        batches_box = ctk.CTkFrame(
-            self,
-            fg_color=COLOR_CARD,
-            corner_radius=10,
-            border_width=1,
-            border_color=("gray85", "gray30"),
-        )
+        batches_box = GlassCard(self)
         batches_box.grid(row=2, column=0, sticky="ew", pady=(0, 24))
         batches_box.grid_columnconfigure(0, weight=1)
 
         # Header row
         sec_header = ctk.CTkFrame(batches_box, fg_color="transparent")
-        sec_header.pack(fill="x", padx=16, pady=(16, 12))
+        sec_header.pack(fill="x", padx=18, pady=(16, 12))
         sec_header.grid_columnconfigure(0, weight=1)
 
         title_lbl = ctk.CTkLabel(
             sec_header,
             text=f"Associated Batches ({len(detail.batches)})",
             font=FONT_SECTION,
+            text_color=COLOR_TEXT_PRIMARY,
             anchor="w",
         )
         title_lbl.grid(row=0, column=0, sticky="w")
@@ -302,27 +380,28 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
         # Toggleable Add Batch panel
         self.add_batch_frame = ctk.CTkFrame(
             batches_box,
-            fg_color=("gray95", "#18202F"),
-            corner_radius=8,
+            fg_color=COLOR_CARD_ELEVATED,
+            corner_radius=10,
             border_width=1,
-            border_color=("gray85", "gray30"),
+            border_color=COLOR_BORDER,
         )
-        # Built once, packed when "+ Add New Batch" is toggled
         self._build_add_batch_panel()
 
         add_batch_btn = ctk.CTkButton(
             sec_header,
-            text="+ Add New Batch",
+            text="➕ Add New Batch",
             font=FONT_BODY_BOLD,
             fg_color=COLOR_PRIMARY,
             hover_color=COLOR_PRIMARY_HOVER,
+            text_color="white",
             height=32,
+            corner_radius=8,
             command=self._toggle_add_batch_panel,
         )
         add_batch_btn.grid(row=0, column=1, sticky="e")
 
         # Divider
-        self.batch_divider = ctk.CTkFrame(batches_box, height=1, fg_color=("gray90", "gray25"))
+        self.batch_divider = ctk.CTkFrame(batches_box, height=1, fg_color=COLOR_DIVIDER)
         self.batch_divider.pack(fill="x", padx=16, pady=(0, 12))
 
         # Render list of batches
@@ -337,46 +416,79 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             self.add_batch_frame,
             text="Add Another Batch for this Medicine",
             font=FONT_BODY_BOLD,
+            text_color=COLOR_TEXT_PRIMARY,
             anchor="w",
-        ).grid(row=0, column=0, columnspan=4, padx=14, pady=(12, 6), sticky="w")
+        ).grid(row=0, column=0, columnspan=4, padx=16, pady=(14, 8), sticky="w")
 
         # Expiry date *
-        ctk.CTkLabel(self.add_batch_frame, text="Expiry Date * (YYYY-MM-DD)", font=FONT_CAPTION, anchor="w").grid(
-            row=1, column=0, padx=14, pady=(2, 0), sticky="w"
+        ctk.CTkLabel(self.add_batch_frame, text="Expiry Date * (YYYY-MM-DD)", font=FONT_CAPTION_BOLD, text_color=COLOR_TEXT_SECONDARY, anchor="w").grid(
+            row=1, column=0, padx=16, pady=(2, 0), sticky="w"
         )
-        self.new_exp_entry = ctk.CTkEntry(self.add_batch_frame, placeholder_text="e.g. 2028-05-15", height=32)
-        self.new_exp_entry.grid(row=2, column=0, padx=14, pady=(0, 10), sticky="ew")
+        self.new_exp_entry = ctk.CTkEntry(
+            self.add_batch_frame,
+            placeholder_text="e.g. 2028-05-15",
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
+        self.new_exp_entry.grid(row=2, column=0, padx=16, pady=(0, 12), sticky="ew")
 
         # Quantity
-        ctk.CTkLabel(self.add_batch_frame, text="Quantity", font=FONT_CAPTION, anchor="w").grid(
-            row=1, column=1, padx=14, pady=(2, 0), sticky="w"
+        ctk.CTkLabel(self.add_batch_frame, text="Quantity", font=FONT_CAPTION_BOLD, text_color=COLOR_TEXT_SECONDARY, anchor="w").grid(
+            row=1, column=1, padx=16, pady=(2, 0), sticky="w"
         )
-        self.new_qty_entry = ctk.CTkEntry(self.add_batch_frame, placeholder_text="e.g. 10", height=32)
-        self.new_qty_entry.grid(row=2, column=1, padx=14, pady=(0, 10), sticky="ew")
+        self.new_qty_entry = ctk.CTkEntry(
+            self.add_batch_frame,
+            placeholder_text="e.g. 10",
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
+        self.new_qty_entry.grid(row=2, column=1, padx=16, pady=(0, 12), sticky="ew")
 
         # Batch Number
-        ctk.CTkLabel(self.add_batch_frame, text="Batch Number", font=FONT_CAPTION, anchor="w").grid(
-            row=1, column=2, padx=14, pady=(2, 0), sticky="w"
+        ctk.CTkLabel(self.add_batch_frame, text="Batch Number", font=FONT_CAPTION_BOLD, text_color=COLOR_TEXT_SECONDARY, anchor="w").grid(
+            row=1, column=2, padx=16, pady=(2, 0), sticky="w"
         )
-        self.new_lot_entry = ctk.CTkEntry(self.add_batch_frame, placeholder_text="e.g. B-002", height=32)
-        self.new_lot_entry.grid(row=2, column=2, padx=14, pady=(0, 10), sticky="ew")
+        self.new_lot_entry = ctk.CTkEntry(
+            self.add_batch_frame,
+            placeholder_text="e.g. B-002",
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
+        self.new_lot_entry.grid(row=2, column=2, padx=16, pady=(0, 12), sticky="ew")
 
         # Location
-        ctk.CTkLabel(self.add_batch_frame, text="Storage Location", font=FONT_CAPTION, anchor="w").grid(
-            row=1, column=3, padx=14, pady=(2, 0), sticky="w"
+        ctk.CTkLabel(self.add_batch_frame, text="Storage Location", font=FONT_CAPTION_BOLD, text_color=COLOR_TEXT_SECONDARY, anchor="w").grid(
+            row=1, column=3, padx=16, pady=(2, 0), sticky="w"
         )
-        self.new_loc_entry = ctk.CTkEntry(self.add_batch_frame, placeholder_text="e.g. Home Cabinet", height=32)
-        self.new_loc_entry.grid(row=2, column=3, padx=14, pady=(0, 10), sticky="ew")
+        self.new_loc_entry = ctk.CTkEntry(
+            self.add_batch_frame,
+            placeholder_text="e.g. Home Cabinet",
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
+        self.new_loc_entry.grid(row=2, column=3, padx=16, pady=(0, 12), sticky="ew")
 
         # Buttons
         btn_box = ctk.CTkFrame(self.add_batch_frame, fg_color="transparent")
-        btn_box.grid(row=3, column=0, columnspan=4, padx=14, pady=(0, 12), sticky="e")
+        btn_box.grid(row=3, column=0, columnspan=4, padx=16, pady=(0, 14), sticky="e")
 
         save_batch_btn = ctk.CTkButton(
             btn_box,
             text="Save Batch",
             font=FONT_BODY_BOLD,
-            height=30,
+            fg_color=COLOR_PRIMARY,
+            hover_color=COLOR_PRIMARY_HOVER,
+            text_color="white",
+            height=32,
+            corner_radius=8,
             command=self._submit_new_batch,
         )
         save_batch_btn.pack(side="right", padx=(8, 0))
@@ -385,10 +497,11 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             btn_box,
             text="Cancel",
             font=FONT_BODY,
-            height=30,
-            fg_color=("gray85", "gray30"),
-            hover_color=("gray75", "gray40"),
-            text_color=("black", "white"),
+            height=32,
+            corner_radius=8,
+            fg_color=COLOR_BTN_SECONDARY,
+            hover_color=COLOR_BTN_SECONDARY_HOVER,
+            text_color=COLOR_BTN_SECONDARY_TEXT,
             command=self._toggle_add_batch_panel,
         )
         cancel_batch_btn.pack(side="right")
@@ -397,7 +510,7 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             btn_box,
             text="",
             font=FONT_CAPTION,
-            text_color=("red", "#FCA5A5"),
+            text_color=STATUS_EXPIRED_TEXT,
         )
         self.batch_err_lbl.pack(side="right", padx=(0, 12))
 
@@ -431,10 +544,13 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
         status_val = get_expiry_status(batch.expiry_date)
         human_label = format_expiry_human_label(days)
 
-        row = ctk.CTkFrame(
+        row = GlassCardHover(
             parent,
-            fg_color=("gray95", "#18202F"),
-            corner_radius=8,
+            default_fg=COLOR_CARD_ELEVATED,
+            hover_fg=COLOR_CARD_HOVER,
+            corner_radius=10,
+            border_width=1,
+            border_color=COLOR_BORDER,
         )
         row.pack(fill="x", padx=16, pady=4)
         row.grid_columnconfigure(0, weight=2)
@@ -443,34 +559,55 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
 
         # Left Info
         left = ctk.CTkFrame(row, fg_color="transparent")
-        left.grid(row=0, column=0, sticky="w", padx=14, pady=8)
+        left.grid(row=0, column=0, sticky="w", padx=16, pady=10)
 
         lot_str = f"Batch: {batch.batch_number or 'Standard'}"
-        ctk.CTkLabel(left, text=lot_str, font=FONT_BODY_BOLD, anchor="w").pack(anchor="w")
+        ctk.CTkLabel(
+            left,
+            text=lot_str,
+            font=FONT_BODY_BOLD,
+            text_color=COLOR_TEXT_PRIMARY,
+            anchor="w",
+        ).pack(anchor="w")
 
         info_parts = [f"Qty: {batch.quantity}"]
         if batch.storage_location:
-            info_parts.append(f"Location: {batch.storage_location}")
+            info_parts.append(f"📍 {batch.storage_location}")
         info_parts.append(f"Status: {batch.status.title()}")
         if batch.disposed_date:
             info_parts.append(f"Disposed: {batch.disposed_date[:10]}")
 
-        ctk.CTkLabel(left, text=" • ".join(info_parts), font=FONT_CAPTION, text_color="gray", anchor="w").pack(
-            anchor="w"
-        )
+        ctk.CTkLabel(
+            left,
+            text=" • ".join(info_parts),
+            font=FONT_CAPTION,
+            text_color=COLOR_TEXT_MUTED,
+            anchor="w",
+        ).pack(anchor="w", pady=(2, 0))
 
         # Center Expiry Info
         center = ctk.CTkFrame(row, fg_color="transparent")
-        center.grid(row=0, column=1, sticky="w", padx=10, pady=8)
+        center.grid(row=0, column=1, sticky="w", padx=10, pady=10)
 
-        ctk.CTkLabel(center, text=f"Expires: {batch.expiry_date}", font=FONT_BODY, anchor="w").pack(anchor="w")
-        ctk.CTkLabel(center, text=human_label, font=FONT_CAPTION, text_color=("gray30", "gray75"), anchor="w").pack(
-            anchor="w"
-        )
+        ctk.CTkLabel(
+            center,
+            text=f"Expires: {batch.expiry_date}",
+            font=FONT_BODY,
+            text_color=COLOR_TEXT_PRIMARY,
+            anchor="w",
+        ).pack(anchor="w")
+
+        ctk.CTkLabel(
+            center,
+            text=human_label,
+            font=FONT_CAPTION_BOLD,
+            text_color=COLOR_TEXT_SECONDARY,
+            anchor="w",
+        ).pack(anchor="w", pady=(2, 0))
 
         # Right Controls: Badge, Dispose/Restore, Edit, Delete
         right = ctk.CTkFrame(row, fg_color="transparent")
-        right.grid(row=0, column=2, sticky="e", padx=14, pady=8)
+        right.grid(row=0, column=2, sticky="e", padx=16, pady=10)
 
         badge = StatusBadge(right, status=status_val if batch.status == "active" else batch.status)
         badge.pack(side="left", padx=(0, 8))
@@ -480,11 +617,12 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
                 right,
                 text="Dispose",
                 font=FONT_BODY,
-                width=64,
+                width=66,
                 height=28,
-                fg_color=("gray85", "gray30"),
-                hover_color=("gray75", "gray40"),
-                text_color=("black", "white"),
+                corner_radius=8,
+                fg_color=COLOR_BTN_SECONDARY,
+                hover_color=COLOR_BTN_SECONDARY_HOVER,
+                text_color=COLOR_BTN_SECONDARY_TEXT,
                 command=lambda b_id=batch.id: self._prompt_dispose_batch(b_id),
             )
             dispose_btn.pack(side="left", padx=(0, 6))
@@ -493,11 +631,12 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
                 right,
                 text="Restore",
                 font=FONT_BODY,
-                width=64,
+                width=66,
                 height=28,
-                fg_color=("#DCFCE7", "#14532D"),
-                hover_color=("#BBF7D0", "#166534"),
-                text_color=("#15803D", "#86EFAC"),
+                corner_radius=8,
+                fg_color=STATUS_VALID_BG,
+                hover_color=STATUS_VALID,
+                text_color=STATUS_VALID_TEXT,
                 command=lambda b_id=batch.id: self._restore_batch(b_id),
             )
             restore_btn.pack(side="left", padx=(0, 6))
@@ -506,11 +645,12 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             right,
             text="Edit",
             font=FONT_BODY,
-            width=50,
+            width=52,
             height=28,
-            fg_color=("gray85", "gray30"),
-            hover_color=("gray75", "gray40"),
-            text_color=("black", "white"),
+            corner_radius=8,
+            fg_color=COLOR_BTN_SECONDARY,
+            hover_color=COLOR_BTN_SECONDARY_HOVER,
+            text_color=COLOR_BTN_SECONDARY_TEXT,
             command=lambda b=batch: self._open_edit_batch_dialog(b),
         )
         edit_btn.pack(side="left", padx=(0, 6))
@@ -519,11 +659,12 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             right,
             text="Delete",
             font=FONT_BODY,
-            width=54,
+            width=58,
             height=28,
-            fg_color=("#FEE2E2", "#7F1D1D"),
-            hover_color=("#EF4444", "#991B1B"),
-            text_color=("#991B1B", "#FEE2E2"),
+            corner_radius=8,
+            fg_color=COLOR_DANGER_SUBTLE,
+            hover_color=COLOR_DANGER,
+            text_color=COLOR_DANGER_TEXT,
             command=lambda b_id=batch.id: self._prompt_delete_batch(b_id),
         )
         del_btn.pack(side="left")
@@ -534,8 +675,8 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             self,
             title="Mark this batch as disposed?",
             message=(
-                "Disposed batches remain in your records but are excluded "
-                "from active inventory and expiry reminders."
+                "Disposed batches remain in your records for historical reference "
+                "but are excluded from active inventory and expiry reminders."
             ),
             confirm_text="Mark as Disposed",
             is_destructive=False,
@@ -557,7 +698,7 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
         ConfirmationDialog(
             self,
             title="Delete Batch Permanently?",
-            message="Are you sure you want to permanently delete this batch record?",
+            message="Are you sure you want to permanently delete this batch record? This action cannot be undone.",
             confirm_text="Delete Batch",
             is_destructive=True,
             on_confirm=lambda: self._delete_batch(batch_id),
@@ -569,60 +710,102 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
         self.refresh()
 
     def _open_edit_batch_dialog(self, batch: Batch) -> None:
-        """Open a simple modal dialog to edit batch fields."""
+        """Open a glassmorphic modal dialog to edit batch fields."""
         dlg = ctk.CTkToplevel(self)
         dlg.title("Edit Batch")
-        dlg.geometry("420x360")
+        dlg.geometry("440x380")
         dlg.resizable(False, False)
         dlg.transient(self)
         dlg.grab_set()
 
-        card = ctk.CTkFrame(dlg, fg_color=COLOR_CARD, corner_radius=10)
+        try:
+            x = self.winfo_rootx() + (self.winfo_width() - 440) // 2
+            y = self.winfo_rooty() + (self.winfo_height() - 380) // 2
+            dlg.geometry(f"+{max(0, x)}+{max(0, y)}")
+        except Exception:
+            pass
+
+        card = GlassCard(dlg)
         card.pack(fill="both", expand=True, padx=16, pady=16)
 
-        ctk.CTkLabel(card, text="Edit Batch Details", font=FONT_SECTION).pack(anchor="w", padx=16, pady=(14, 10))
+        ctk.CTkLabel(
+            card,
+            text="Edit Batch Details",
+            font=FONT_SECTION,
+            text_color=COLOR_TEXT_PRIMARY,
+        ).pack(anchor="w", padx=18, pady=(16, 12))
 
         # Expiry
-        ctk.CTkLabel(card, text="Expiry Date * (YYYY-MM-DD)", font=FONT_CAPTION).pack(anchor="w", padx=16)
-        exp_entry = ctk.CTkEntry(card, font=FONT_BODY, height=32)
+        ctk.CTkLabel(card, text="Expiry Date * (YYYY-MM-DD)", font=FONT_CAPTION_BOLD, text_color=COLOR_TEXT_SECONDARY).pack(anchor="w", padx=18)
+        exp_entry = ctk.CTkEntry(
+            card,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         exp_entry.insert(0, batch.expiry_date)
-        exp_entry.pack(fill="x", padx=16, pady=(2, 8))
+        exp_entry.pack(fill="x", padx=18, pady=(2, 8))
 
         # Quantity
-        ctk.CTkLabel(card, text="Quantity", font=FONT_CAPTION).pack(anchor="w", padx=16)
-        qty_entry = ctk.CTkEntry(card, font=FONT_BODY, height=32)
+        ctk.CTkLabel(card, text="Quantity", font=FONT_CAPTION_BOLD, text_color=COLOR_TEXT_SECONDARY).pack(anchor="w", padx=18)
+        qty_entry = ctk.CTkEntry(
+            card,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         qty_entry.insert(0, str(batch.quantity))
-        qty_entry.pack(fill="x", padx=16, pady=(2, 8))
+        qty_entry.pack(fill="x", padx=18, pady=(2, 8))
 
         # Batch Number
-        ctk.CTkLabel(card, text="Batch / Lot Number", font=FONT_CAPTION).pack(anchor="w", padx=16)
-        lot_entry = ctk.CTkEntry(card, font=FONT_BODY, height=32)
+        ctk.CTkLabel(card, text="Batch / Lot Number", font=FONT_CAPTION_BOLD, text_color=COLOR_TEXT_SECONDARY).pack(anchor="w", padx=18)
+        lot_entry = ctk.CTkEntry(
+            card,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         if batch.batch_number:
             lot_entry.insert(0, batch.batch_number)
-        lot_entry.pack(fill="x", padx=16, pady=(2, 8))
+        lot_entry.pack(fill="x", padx=18, pady=(2, 8))
 
         # Location
-        ctk.CTkLabel(card, text="Storage Location", font=FONT_CAPTION).pack(anchor="w", padx=16)
-        loc_entry = ctk.CTkEntry(card, font=FONT_BODY, height=32)
+        ctk.CTkLabel(card, text="Storage Location", font=FONT_CAPTION_BOLD, text_color=COLOR_TEXT_SECONDARY).pack(anchor="w", padx=18)
+        loc_entry = ctk.CTkEntry(
+            card,
+            font=FONT_BODY,
+            height=34,
+            fg_color=COLOR_INPUT_BG,
+            border_color=COLOR_INPUT_BORDER,
+            corner_radius=8,
+        )
         if batch.storage_location:
             loc_entry.insert(0, batch.storage_location)
-        loc_entry.pack(fill="x", padx=16, pady=(2, 14))
+        loc_entry.pack(fill="x", padx=18, pady=(2, 12))
 
-        err_lbl = ctk.CTkLabel(card, text="", font=FONT_CAPTION, text_color=("red", "#FCA5A5"))
-        err_lbl.pack(fill="x", padx=16, pady=(0, 6))
+        err_lbl = ctk.CTkLabel(card, text="", font=FONT_CAPTION, text_color=STATUS_EXPIRED_TEXT)
+        err_lbl.pack(fill="x", padx=18, pady=(0, 6))
 
         # Actions
         btn_row = ctk.CTkFrame(card, fg_color="transparent")
-        btn_row.pack(fill="x", padx=16, pady=(0, 14))
+        btn_row.pack(fill="x", padx=18, pady=(0, 16))
         btn_row.grid_columnconfigure((0, 1), weight=1)
 
         cancel_btn = ctk.CTkButton(
             btn_row,
             text="Cancel",
             font=FONT_BODY,
-            fg_color=("gray85", "gray30"),
-            hover_color=("gray75", "gray40"),
-            text_color=("black", "white"),
+            height=34,
+            corner_radius=8,
+            fg_color=COLOR_BTN_SECONDARY,
+            hover_color=COLOR_BTN_SECONDARY_HOVER,
+            text_color=COLOR_BTN_SECONDARY_TEXT,
             command=dlg.destroy,
         )
         cancel_btn.grid(row=0, column=0, padx=(0, 8), sticky="ew")
@@ -647,8 +830,11 @@ class MedicineDetailView(ctk.CTkScrollableFrame):
             btn_row,
             text="Save Batch",
             font=FONT_BODY_BOLD,
+            height=34,
+            corner_radius=8,
             fg_color=COLOR_PRIMARY,
             hover_color=COLOR_PRIMARY_HOVER,
+            text_color="white",
             command=save_changes,
         )
         save_btn.grid(row=0, column=1, padx=(8, 0), sticky="ew")
