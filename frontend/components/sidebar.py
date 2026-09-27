@@ -11,6 +11,7 @@ import customtkinter as ctk
 from backend.config import APP_NAME, APP_VERSION
 from frontend.config import (
     COLOR_BORDER,
+    COLOR_BORDER_HIGHLIGHT,
     COLOR_CARD_HOVER,
     COLOR_PRIMARY,
     COLOR_PRIMARY_HOVER,

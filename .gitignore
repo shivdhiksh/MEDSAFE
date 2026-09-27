@@ -40,3 +40,6 @@ dist/
 # Application logs
 logs/*
 !logs/.gitkeep
+
+# Project planning state
+.planning/

@@ -1,7 +1,7 @@
 """UI configuration, theme settings, color palettes, and fonts for MEDSAFE.
 
-Second Visual Upgrade: Premium Glassmorphism & Ambient Gradient Experience.
-Centralized design system tokens for desktop glassmorphism styling, ambient glow,
+Atmospheric Glassmorphism & Medical Healthtech Design System.
+Centralized design system tokens for desktop glassmorphism styling, ambient studio lighting,
 translucent layered surfaces, dark/light mode contrast, typography, and status indicators.
 """
 
@@ -16,7 +16,7 @@ WINDOW_MIN_WIDTH: int = 840
 WINDOW_MIN_HEIGHT: int = 540
 
 # ---------------------------------------------------------------------------
-# Typography (Windows Segoe UI Hierarchy)
+# Typography (Windows Segoe UI Variable / Segoe UI Hierarchy)
 # ---------------------------------------------------------------------------
 FONT_FAMILY: str = "Segoe UI"
 FONT_HERO: Tuple[str, int, str] = (FONT_FAMILY, 24, "bold")
@@ -33,14 +33,14 @@ FONT_BADGE: Tuple[str, int, str] = (FONT_FAMILY, 10, "bold")
 
 # ---------------------------------------------------------------------------
 # Color Palette: Tuples of (Light Mode, Dark Mode)
-# Dark Mode: Deep navy / near-black (#070B14 / #0A0F1D) with ambient blue/purple glow
-# Light Mode: Clean off-white / light slate (#F5F7FB / #FFFFFF) with soft lavender/blue depth
+# Dark Mode: Obsidian space (#050811 / #0A0F1D) with ambient studio glow
+# Light Mode: Clean frosted pearl / snow slate (#F8FAFC / #FFFFFF)
 # ---------------------------------------------------------------------------
 
 # Primary Brand & Accent Gradients
-COLOR_PRIMARY: Tuple[str, str] = ("#0284C7", "#0EA5E9")              # Medical Blue / Sky Blue
+COLOR_PRIMARY: Tuple[str, str] = ("#0284C7", "#0EA5E9")              # Medical Blue / Luminous Sky Blue
 COLOR_PRIMARY_HOVER: Tuple[str, str] = ("#0369A1", "#38BDF8")        # Deep Sky / Bright Luminous Sky
-COLOR_PRIMARY_SUBTLE: Tuple[str, str] = ("#E0F2FE", "#082F49")       # Tinted blue container
+COLOR_PRIMARY_SUBTLE: Tuple[str, str] = ("#E0F2FE", "#0B2640")       # Tinted blue container
 COLOR_PRIMARY_BORDER: Tuple[str, str] = ("#BAE6FD", "#0284C7")       # Subtle primary outline
 
 # Ambient Accent Colors (Inspired by reference glowing blobs)
@@ -70,32 +70,32 @@ WAVE_COLORS_LIGHT = ["#93C5FD", "#A5B4FC", "#C4B5FD", "#DDD6FE", "#E9D5FF", "#F5
 # Secondary & Neutral Accents
 COLOR_SECONDARY: Tuple[str, str] = ("#475569", "#64748B")
 COLOR_SECONDARY_HOVER: Tuple[str, str] = ("#334155", "#94A3B8")
-COLOR_BTN_SECONDARY: Tuple[str, str] = ("#EDF2F7", "#131E35")
-COLOR_BTN_SECONDARY_HOVER: Tuple[str, str] = ("#E2E8F0", "#1E2C4A")
+COLOR_BTN_SECONDARY: Tuple[str, str] = ("#EDF2F7", "#111C33")
+COLOR_BTN_SECONDARY_HOVER: Tuple[str, str] = ("#E2E8F0", "#182748")
 COLOR_BTN_SECONDARY_TEXT: Tuple[str, str] = ("#1E293B", "#F1F5F9")
 
 # Danger / Destructive
-COLOR_DANGER: Tuple[str, str] = ("#DC2626", "#EF4444")
-COLOR_DANGER_HOVER: Tuple[str, str] = ("#B91C1C", "#DC2626")
-COLOR_DANGER_SUBTLE: Tuple[str, str] = ("#FEE2E2", "#3B0D0D")
-COLOR_DANGER_BG: Tuple[str, str] = ("#FEE2E2", "#3B0D0D")
-COLOR_DANGER_TEXT: Tuple[str, str] = ("#991B1B", "#FCA5A5")
-COLOR_DANGER_BORDER: Tuple[str, str] = ("#FCA5A5", "#7F1D1D")
+COLOR_DANGER: Tuple[str, str] = ("#DC2626", "#F43F5E")
+COLOR_DANGER_HOVER: Tuple[str, str] = ("#B91C1C", "#E11D48")
+COLOR_DANGER_SUBTLE: Tuple[str, str] = ("#FEE2E2", "#3D0C15")
+COLOR_DANGER_BG: Tuple[str, str] = ("#FEE2E2", "#3D0C15")
+COLOR_DANGER_TEXT: Tuple[str, str] = ("#991B1B", "#FB7185")
+COLOR_DANGER_BORDER: Tuple[str, str] = ("#FCA5A5", "#881337")
 
 # Surfaces & Glassmorphic Desktop Layers
-COLOR_BACKGROUND: Tuple[str, str] = ("#F0F4FA", "#060913")           # Deep near-black obsidian dark / Cool light canvas
-COLOR_HEADER_BG: Tuple[str, str] = ("#FFFFFF", "#0C1527")            # Floating glass top header
-COLOR_SIDEBAR: Tuple[str, str] = ("#FFFFFF", "#0C1527")              # Floating glass sidebar surface
-COLOR_SIDEBAR_BORDER: Tuple[str, str] = ("#E2E8F0", "#1E2F4C")
-COLOR_CARD: Tuple[str, str] = ("#FFFFFF", "#0F182B")                 # Translucent-like base glass card
-COLOR_CARD_ELEVATED: Tuple[str, str] = ("#F8FAFC", "#14223A")        # Elevated glass panel
-COLOR_CARD_HOVER: Tuple[str, str] = ("#F1F5F9", "#1B2D4C")           # Interactive glass hover
-COLOR_BORDER: Tuple[str, str] = ("#E2E8F0", "#1E304E")               # Subtle crisp glass border
-COLOR_BORDER_STRONG: Tuple[str, str] = ("#CBD5E1", "#2A4168")
+COLOR_BACKGROUND: Tuple[str, str] = ("#F8FAFC", "#050811")           # Obsidian base dark / Clean snow light
+COLOR_HEADER_BG: Tuple[str, str] = ("#FFFFFF", "#0A101D")            # Floating glass top header
+COLOR_SIDEBAR: Tuple[str, str] = ("#FFFFFF", "#0A101D")              # Floating glass sidebar surface
+COLOR_SIDEBAR_BORDER: Tuple[str, str] = ("#E2E8F0", "#16233B")
+COLOR_CARD: Tuple[str, str] = ("#FFFFFF", "#0D1527")                 # Translucent frosted glass card
+COLOR_CARD_ELEVATED: Tuple[str, str] = ("#F8FAFC", "#121E36")        # Elevated glass panel
+COLOR_CARD_HOVER: Tuple[str, str] = ("#F1F5F9", "#18284A")           # Interactive glass hover
+COLOR_BORDER: Tuple[str, str] = ("#E2E8F0", "#192843")               # Subtle crisp glass border
+COLOR_BORDER_STRONG: Tuple[str, str] = ("#CBD5E1", "#22375C")
 COLOR_BORDER_HIGHLIGHT: Tuple[str, str] = ("#BAE6FD", "#38BDF8")     # Glass inner highlight rim
-COLOR_DIVIDER: Tuple[str, str] = ("#EDF2F7", "#17233D")
-COLOR_INPUT_BG: Tuple[str, str] = ("#F8FAFC", "#0C1424")             # Frosted glass input surface
-COLOR_INPUT_BORDER: Tuple[str, str] = ("#CBD5E1", "#223554")
+COLOR_DIVIDER: Tuple[str, str] = ("#EDF2F7", "#152037")
+COLOR_INPUT_BG: Tuple[str, str] = ("#F8FAFC", "#080E1B")             # Frosted glass input surface
+COLOR_INPUT_BORDER: Tuple[str, str] = ("#CBD5E1", "#1E2F4F")
 
 # Text Hierarchy
 COLOR_TEXT_PRIMARY: Tuple[str, str] = ("#0F172A", "#F8FAFC")         # Highest contrast
@@ -107,26 +107,26 @@ COLOR_TEXT_WHITE: str = "#FFFFFF"
 # Status Colors (Calm, Professional, Non-Misleading)
 # ---------------------------------------------------------------------------
 
-# Valid: Calm Green
-STATUS_VALID: Tuple[str, str] = ("#16A34A", "#22C55E")
-STATUS_VALID_BG: Tuple[str, str] = ("#DCFCE7", "#052E16")
-STATUS_VALID_TEXT: Tuple[str, str] = ("#15803D", "#4ADE80")
-STATUS_VALID_BORDER: Tuple[str, str] = ("#86EFAC", "#166534")
+# Valid: Calm Emerald Green
+STATUS_VALID: Tuple[str, str] = ("#16A34A", "#10B981")
+STATUS_VALID_BG: Tuple[str, str] = ("#DCFCE7", "#042F1E")
+STATUS_VALID_TEXT: Tuple[str, str] = ("#15803D", "#34D399")
+STATUS_VALID_BORDER: Tuple[str, str] = ("#86EFAC", "#065F46")
 
 # Expiring Soon: Warm Amber / Yellow
 STATUS_EXPIRING: Tuple[str, str] = ("#D97706", "#F59E0B")
-STATUS_EXPIRING_BG: Tuple[str, str] = ("#FEF3C7", "#451A03")
+STATUS_EXPIRING_BG: Tuple[str, str] = ("#FEF3C7", "#3B1B04")
 STATUS_EXPIRING_TEXT: Tuple[str, str] = ("#B45309", "#FBBF24")
 STATUS_EXPIRING_BORDER: Tuple[str, str] = ("#FCD34D", "#78350F")
 
 # Expired: Coral / Crimson Red
-STATUS_EXPIRED: Tuple[str, str] = ("#DC2626", "#EF4444")
-STATUS_EXPIRED_BG: Tuple[str, str] = ("#FEE2E2", "#450A0A")
-STATUS_EXPIRED_TEXT: Tuple[str, str] = ("#B91C1C", "#F87171")
-STATUS_EXPIRED_BORDER: Tuple[str, str] = ("#FCA5A5", "#7F1D1D")
+STATUS_EXPIRED: Tuple[str, str] = ("#DC2626", "#F43F5E")
+STATUS_EXPIRED_BG: Tuple[str, str] = ("#FEE2E2", "#3D0C15")
+STATUS_EXPIRED_TEXT: Tuple[str, str] = ("#B91C1C", "#FB7185")
+STATUS_EXPIRED_BORDER: Tuple[str, str] = ("#FCA5A5", "#881337")
 
 # Disposed / Inactive: Muted Slate Gray
 STATUS_INACTIVE: Tuple[str, str] = ("#64748B", "#94A3B8")
-STATUS_INACTIVE_BG: Tuple[str, str] = ("#F1F5F9", "#1E293B")
+STATUS_INACTIVE_BG: Tuple[str, str] = ("#F1F5F9", "#151F32")
 STATUS_INACTIVE_TEXT: Tuple[str, str] = ("#475569", "#94A3B8")
-STATUS_INACTIVE_BORDER: Tuple[str, str] = ("#CBD5E1", "#334155")
+STATUS_INACTIVE_BORDER: Tuple[str, str] = ("#CBD5E1", "#253856")

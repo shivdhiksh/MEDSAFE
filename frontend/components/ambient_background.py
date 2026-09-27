@@ -15,6 +15,7 @@ import customtkinter as ctk
 from frontend.config import (
     COLOR_BACKGROUND,
     COLOR_BORDER,
+    COLOR_BORDER_HIGHLIGHT,
     COLOR_BTN_SECONDARY,
     COLOR_BTN_SECONDARY_HOVER,
     COLOR_BTN_SECONDARY_TEXT,
@@ -23,23 +24,26 @@ from frontend.config import (
     COLOR_PRIMARY_SUBTLE,
     COLOR_TEXT_MUTED,
     COLOR_TEXT_PRIMARY,
+    COLOR_TEXT_SECONDARY,
     FONT_BODY,
     FONT_CAPTION,
     FONT_CAPTION_BOLD,
     FONT_HERO,
+    STATUS_VALID_BG,
+    STATUS_VALID_TEXT,
 )
 
 
 class CapsuleCanvas(ctk.CTkCanvas):
     """Clean, high-precision medicine capsule canvas drawing.
-    Renders an angled (45-degree) medicine capsule with magenta/pink upper half,
+    Renders an angled (45-degree) medicine capsule with magenta/rose upper half,
     cyan/blue lower half, divider ring, and glossy specular highlight.
     """
 
     def __init__(
         self,
         master: ctk.CTkBaseClass,
-        size: int = 44,
+        size: int = 46,
         bg_color: Optional[str] = None,
         **kwargs,
     ) -> None:
@@ -59,7 +63,7 @@ class CapsuleCanvas(ctk.CTkCanvas):
         self.redraw()
 
     def redraw(self) -> None:
-        """Draw the styled 3D-effect medicine capsule."""
+        """Draw the styled 3D-effect medicine capsule with specular glow."""
         self.delete("all")
         s = self.size
         cx, cy = s // 2, s // 2
@@ -67,19 +71,19 @@ class CapsuleCanvas(ctk.CTkCanvas):
         d = max(5, int(s * 0.20))
         w = r * 2
 
-        # Outer subtle bloom
-        self.create_line(cx - 1, cy - 1, cx + d + 1, cy + d + 1, width=w + 3, capstyle="round", fill="#07203A")
-        self.create_line(cx + 1, cy + 1, cx - d - 1, cy - d - 1, width=w + 3, capstyle="round", fill="#3A0B1A")
+        # Outer subtle bloom / shadow
+        self.create_line(cx - 1, cy - 1, cx + d + 2, cy + d + 2, width=w + 4, capstyle="round", fill="#071A2E")
+        self.create_line(cx + 1, cy + 1, cx - d - 2, cy - d - 2, width=w + 4, capstyle="round", fill="#350B1B")
 
         # Bottom-right half: Cyan / Sky Blue
         self.create_line(cx - 1, cy - 1, cx + d, cy + d, width=w, capstyle="round", fill="#0284C7")
         self.create_line(cx, cy, cx + d - 2, cy + d - 2, width=max(2, w - 4), capstyle="round", fill="#38BDF8")
 
-        # Top-left half: Magenta / Pink
-        self.create_line(cx + 1, cy + 1, cx - d, cy - d, width=w, capstyle="round", fill="#DB2777")
+        # Top-left half: Magenta / Rose
+        self.create_line(cx + 1, cy + 1, cx - d, cy - d, width=w, capstyle="round", fill="#E11D48")
         self.create_line(cx, cy, cx - d + 2, cy - d + 2, width=max(2, w - 4), capstyle="round", fill="#F472B6")
 
-        # Seam ring
+        # Seam ring (divider)
         ring_r = int(w * 0.38)
         self.create_line(cx - ring_r, cy + ring_r, cx + ring_r, cy - ring_r, width=2, fill="#0F172A")
 
@@ -98,7 +102,7 @@ class CapsuleCanvas(ctk.CTkCanvas):
 class AmbientRenderer:
     """Pre-renders smooth, diffuse, low-contrast atmospheric lighting buffers using PPM format.
     Produces studio-quality soft out-of-focus lighting behind frosted glass:
-    - Delta RGB is restrained to only 15-25 units over dark obsidian base
+    - Delta RGB is restrained over deep obsidian base
     - Zero sharp geometric edges, zero concentric rings, zero wallpaper effect
     """
 
@@ -114,21 +118,22 @@ class AmbientRenderer:
 
         w, h = self.w, self.h
         if is_dark:
-            base_r, base_g, base_b = 6, 9, 18  # #060912 obsidian navy
+            base_r, base_g, base_b = 5, 8, 17  # #050811 obsidian navy
             lights = [
-                # x, y, radius, r, g, b, intensity (restrained to 0.08 - 0.14)
-                (0.20, 0.12, 0.45, 14, 165, 233, 0.14),  # soft cyan/sky blue
-                (0.06, 0.72, 0.50, 168, 85, 247, 0.11),  # soft violet/purple
-                (0.80, 0.25, 0.45, 99, 102, 241, 0.09),  # soft indigo
-                (0.75, 0.85, 0.40, 16, 185, 129, 0.06),  # subtle emerald
+                # x, y, radius, r, g, b, intensity
+                (0.18, 0.12, 0.48, 14, 165, 233, 0.18),  # radiant cyan/sky blue
+                (0.06, 0.76, 0.52, 168, 85, 247, 0.13),  # soft violet/purple
+                (0.82, 0.22, 0.46, 99, 102, 241, 0.11),  # soft indigo
+                (0.78, 0.88, 0.42, 16, 185, 129, 0.08),  # subtle emerald
+                (0.48, 0.52, 0.36, 244, 114, 182, 0.05), # subtle rose shimmer
             ]
         else:
-            base_r, base_g, base_b = 240, 243, 249  # #F0F3F9 soft pearl
+            base_r, base_g, base_b = 248, 250, 252  # #F8FAFC soft pearl snow
             lights = [
-                (0.20, 0.12, 0.45, 215, 235, 255, 0.35),
-                (0.06, 0.72, 0.50, 235, 225, 255, 0.30),
-                (0.80, 0.25, 0.45, 225, 230, 255, 0.25),
-                (0.75, 0.85, 0.40, 225, 250, 240, 0.20),
+                (0.18, 0.12, 0.48, 215, 235, 255, 0.35),
+                (0.06, 0.76, 0.52, 235, 225, 255, 0.30),
+                (0.82, 0.22, 0.46, 225, 230, 255, 0.25),
+                (0.78, 0.88, 0.42, 225, 250, 240, 0.20),
             ]
 
         buf = bytearray(w * h * 3)
@@ -224,7 +229,6 @@ class AmbientBackground(ctk.CTkCanvas):
 
         try:
             ppm_data = _AMBIENT_RENDERER.generate_ppm(is_dark)
-            base_photo = ctk.CTkImage._photo_image = None  # prevent Tkinter image leak
             import tkinter as tk
             base_img = tk.PhotoImage(data=ppm_data)
             scale_x = max(1, math.ceil(w / 160))
@@ -314,7 +318,7 @@ class AmbientHeroPanel(ctk.CTkFrame):
 
         privacy_badge = ctk.CTkLabel(
             title_row,
-            text="🔒 Offline & Private",
+            text="🔒 100% Offline & Private",
             font=FONT_CAPTION_BOLD,
             fg_color=COLOR_PRIMARY_SUBTLE,
             text_color=COLOR_PRIMARY,
