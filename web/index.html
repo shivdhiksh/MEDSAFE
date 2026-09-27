@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MEDSAFE — Spatial Liquid Glass Medicine Intelligence</title>
+  <meta name="description" content="Offline-first medicine inventory and expiry tracker with $1M-caliber liquid glass UI, spatial physics, and zero telemetry.">
+  
+  <!-- Premium Fonts: Plus Jakarta Sans, Fraunces (Editorial Luxury), JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Inline SVG Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%238b5cf6%22 stroke-width=%222%22><path d=%22M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5%22/></svg>">
+
+  <style>
+    /* -------------------------------------------------------------
+       1. DESIGN TOKENS & LIQUID GLASS SYSTEM
+       ------------------------------------------------------------- */
+    :root {
+      --bg-base: #05070f;
+      --bg-gradient: radial-gradient(circle at 50% 0%, #111a33 0%, #05070f 70%);
+      
+      /* Liquid Glass Acrylic Slabs */
+      --glass-slab-bg: rgba(18, 26, 47, 0.58);
+      --glass-slab-border: rgba(255, 255, 255, 0.18);
+      --glass-slab-border-highlight: rgba(255, 255, 255, 0.45);
+      --glass-slab-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.5), inset 0 1.5px 1px rgba(255, 255, 255, 0.45), inset 0 -1.5px 2px rgba(255, 255, 255, 0.08);
+      
+      --glass-card-bg: rgba(23, 33, 58, 0.52);
+      --glass-card-hover: rgba(30, 44, 76, 0.68);
+      --glass-inner-bevel: inset 0 1px 1px rgba(255, 255, 255, 0.35);
+
+      /* Typography Colors */
+      --text-hero: #ffffff;
+      --text-body: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      /* Volumetric Jelly Button Palettes */
+      --jelly-purple-from: #8b5cf6;
+      --jelly-purple-to: #6d28d9;
+      --jelly-purple-shadow: rgba(139, 92, 246, 0.45);
+
+      --jelly-cyan-from: #06b6d4;
+      --jelly-cyan-to: #0891b2;
+      --jelly-cyan-shadow: rgba(6, 182, 212, 0.45);
+
+      --jelly-emerald-from: #10b981;
+      --jelly-emerald-to: #059669;
+      --jelly-emerald-shadow: rgba(16, 185, 129, 0.45);
+
+      --jelly-rose-from: #f43f5e;
+      --jelly-rose-to: #e11d48;
+      --jelly-rose-shadow: rgba(244, 63, 94, 0.45);
+
+      --jelly-amber-from: #f59e0b;
+      --jelly-amber-to: #d97706;
+      --jelly-amber-shadow: rgba(245, 158, 11, 0.45);
+
+      /* Fonts */
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-editorial: 'Fraunces', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Fluid Radii */
+      --radius-tray: 36px;
+      --radius-card: 24px;
+      --radius-pill: 9999px;
+      --radius-inner: 16px;
+    }
+
+    [data-theme="light"] {
+      --bg-base: #f1f5f9;
+      --bg-gradient: radial-gradient(circle at 50% 0%, #e2e8f0 0%, #cbd5e1 100%);
+      
+      --glass-slab-bg: rgba(255, 255, 255, 0.72);
+      --glass-slab-border: rgba(255, 255, 255, 0.9);
+      --glass-slab-border-highlight: #ffffff;
+      --glass-slab-shadow: 0 25px 50px -12px rgba(148, 163, 184, 0.35), inset 0 1.5px 1px #ffffff, inset 0 -1.5px 2px rgba(0, 0, 0, 0.05);
+      
+      --glass-card-bg: rgba(255, 255, 255, 0.78);
+      --glass-card-hover: rgba(255, 255, 255, 0.95);
+      --glass-inner-bevel: inset 0 1px 1px #ffffff;
+
+      --text-hero: #0f172a;
+      --text-body: #1e293b;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+
+      --jelly-purple-shadow: rgba(139, 92, 246, 0.32);
+      --jelly-cyan-shadow: rgba(6, 182, 212, 0.32);
+    }
+
+    [data-theme="light"] .hero-editorial-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.88) 100%);
+      border-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 20px 40px -10px rgba(148, 163, 184, 0.25), inset 0 1px 1px #ffffff;
+    }
+    [data-theme="light"] .iridescent-glass-card {
+      background: linear-gradient(135deg, rgba(251, 207, 232, 0.88) 0%, rgba(221, 214, 254, 0.9) 50%, rgba(186, 230, 253, 0.94) 100%);
+      border-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 24px 48px -12px rgba(139, 92, 246, 0.25), inset 0 1.5px 1.5px #ffffff;
+    }
+    [data-theme="light"] .iridescent-title {
+      color: #1e1b4b;
+    }
+    [data-theme="light"] .iridescent-sub {
+      color: #312e81;
+    }
+    [data-theme="light"] .glass-search-pill {
+      background: rgba(255, 255, 255, 0.75);
+      border-color: rgba(203, 213, 225, 0.8);
+      box-shadow: 0 4px 12px rgba(148, 163, 184, 0.15), inset 0 1px 1px #ffffff;
+    }
+    [data-theme="light"] .glass-search-pill input {
+      color: #0f172a;
+    }
+    [data-theme="light"] .btn-glass-icon {
+      background: rgba(255, 255, 255, 0.8);
+      border-color: rgba(203, 213, 225, 0.8);
+      color: #334155;
+      box-shadow: 0 4px 12px rgba(148, 163, 184, 0.15), inset 0 1px 1px #ffffff;
+    }
+    [data-theme="light"] .spatial-dock {
+      background: rgba(255, 255, 255, 0.75);
+      border-color: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 20px 45px -10px rgba(148, 163, 184, 0.35), inset 0 1.5px 1px #ffffff;
+    }
+    [data-theme="light"] .dock-btn {
+      color: #64748b;
+    }
+    [data-theme="light"] .dock-btn:hover {
+      background: rgba(241, 245, 249, 0.85);
+      color: #0f172a;
+    }
+    [data-theme="light"] .dock-btn.active {
+      background: linear-gradient(135deg, var(--jelly-purple-from), var(--jelly-purple-to));
+      color: #ffffff;
+    }
+    [data-theme="light"] .segmented-glass-bar {
+      background: rgba(241, 245, 249, 0.8);
+      border-color: rgba(203, 213, 225, 0.8);
+    }
+    [data-theme="light"] .filter-pill-btn {
+      color: #64748b;
+    }
+    [data-theme="light"] .filter-pill-btn.active {
+      background: #ffffff;
+      color: #0f172a;
+      border-color: rgba(203, 213, 225, 0.95);
+      box-shadow: 0 4px 12px rgba(148, 163, 184, 0.2), inset 0 1px 1px #ffffff;
+    }
+    [data-theme="light"] .med-card-row {
+      background: rgba(255, 255, 255, 0.8);
+      border-color: rgba(226, 232, 240, 0.95);
+      box-shadow: 0 6px 20px -4px rgba(148, 163, 184, 0.2), inset 0 1px 1px #ffffff;
+    }
+    [data-theme="light"] .med-card-row:hover {
+      background: #ffffff;
+      border-color: rgba(203, 213, 225, 1);
+      box-shadow: 0 12px 28px -4px rgba(148, 163, 184, 0.3), inset 0 1px 1px #ffffff;
+    }
+    [data-theme="light"] .modal-glass-tray {
+      background: rgba(255, 255, 255, 0.92);
+      border-color: #ffffff;
+      box-shadow: 0 35px 70px -15px rgba(15, 23, 42, 0.25), inset 0 1.5px 1px #ffffff;
+    }
+    [data-theme="light"] .glass-text-field {
+      background: rgba(248, 250, 252, 0.9);
+      border-color: rgba(203, 213, 225, 0.9);
+      color: #0f172a;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    [data-theme="light"] .glass-text-field:focus {
+      background: #ffffff;
+      border-color: rgba(139, 92, 246, 0.8);
+      box-shadow: 0 0 14px rgba(139, 92, 246, 0.2), inset 0 1px 1px #ffffff;
+    }
+    [data-theme="light"] .date-offset-chip {
+      background: rgba(241, 245, 249, 0.85);
+      border-color: rgba(203, 213, 225, 0.8);
+      color: #475569;
+    }
+    [data-theme="light"] .date-offset-chip:hover {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: rgba(139, 92, 246, 0.4);
+      color: #6d28d9;
+    }
+    [data-theme="light"] .distribution-track-box {
+      background: rgba(255, 255, 255, 0.75);
+      border-color: rgba(226, 232, 240, 0.9);
+      box-shadow: inset 0 1px 1px #ffffff;
+    }
+    [data-theme="light"] .dist-track {
+      background: rgba(226, 232, 240, 0.85);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+    }
+
+    /* -------------------------------------------------------------
+       2. GLOBAL RESET & PRISMATIC CAUSTICS
+       ------------------------------------------------------------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-base);
+      background-image: var(--bg-gradient);
+      color: var(--text-body);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Fluid Caustic Mesh Animation */
+    .caustic-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .caustic-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.38;
+      mix-blend-mode: screen;
+      will-change: transform;
+      animation: floatCaustic 24s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    [data-theme="light"] .caustic-orb {
+      opacity: 0.28;
+      mix-blend-mode: multiply;
+      filter: blur(90px);
+    }
+    .orb-1 {
+      top: -15%;
+      left: 10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #8b5cf6 0%, rgba(139, 92, 246, 0) 70%);
+      animation-duration: 26s;
+    }
+    .orb-2 {
+      bottom: -15%;
+      right: 15%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, #06b6d4 0%, rgba(6, 182, 212, 0) 70%);
+      animation-duration: 22s;
+      animation-delay: -5s;
+    }
+    .orb-3 {
+      top: 35%;
+      right: -10%;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, #ec4899 0%, rgba(236, 72, 153, 0) 70%);
+      animation-duration: 30s;
+      animation-delay: -10s;
+    }
+    .orb-4 {
+      bottom: 5%;
+      left: -8%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #10b981 0%, rgba(16, 185, 129, 0) 70%);
+      animation-duration: 28s;
+      animation-delay: -7s;
+    }
+
+    @keyframes floatCaustic {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+      50% { transform: translate(50px, 40px) scale(1.12) rotate(15deg); }
+      100% { transform: translate(-30px, 70px) scale(0.92) rotate(-15deg); }
+    }
+
+    /* -------------------------------------------------------------
+       3. SPATIAL VISIONOS SHELL & DETACHED DOCK
+       ------------------------------------------------------------- */
+    .spatial-viewport {
+      position: relative;
+      z-index: 1;
+      width: 100vw;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 20px;
+    }
+
+    /* Detached Vertical Spatial Dock (Image 3 inspired) */
+    .spatial-dock {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 12px;
+      background: var(--glass-slab-bg);
+      backdrop-filter: blur(32px) saturate(190%);
+      -webkit-backdrop-filter: blur(32px) saturate(190%);
+      border: 1px solid var(--glass-slab-border);
+      border-radius: var(--radius-pill);
+      box-shadow: var(--glass-slab-shadow);
+      z-index: 10;
+      flex-shrink: 0;
+      transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+
+    .dock-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+      outline: none;
+    }
+    .dock-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 1.8;
+      transition: transform 0.25s ease;
+    }
+    .dock-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-hero);
+      transform: scale(1.08);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    .dock-btn.active {
+      background: linear-gradient(135deg, var(--jelly-purple-from), var(--jelly-purple-to));
+      color: #ffffff;
+      box-shadow: 0 8px 20px -2px var(--jelly-purple-shadow), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    .dock-btn.active svg {
+      transform: scale(1.1);
+    }
+    .dock-btn .tooltip {
+      position: absolute;
+      left: calc(100% + 14px);
+      top: 50%;
+      transform: translateY(-50%) translateX(-8px);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(16px);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+    .dock-btn:hover .tooltip {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    /* -------------------------------------------------------------
+       4. DOUBLE-BEZEL LIQUID GLASS MAIN TRAY (Image 1 replica)
+       ------------------------------------------------------------- */
+    .glass-tray {
+      width: 100%;
+      max-width: 1360px;
+      height: 92vh;
+      height: 92dvh;
+      background: var(--glass-slab-bg);
+      backdrop-filter: blur(36px) saturate(190%);
+      -webkit-backdrop-filter: blur(36px) saturate(190%);
+      border: 1px solid var(--glass-slab-border);
+      border-radius: var(--radius-tray);
+      box-shadow: var(--glass-slab-shadow);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Prismatic Rainbow Caustic Bevel Highlight */
+    .glass-tray::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(255, 255, 255, 0.8) 15%, 
+        rgba(139, 92, 246, 0.6) 35%, 
+        rgba(6, 182, 212, 0.7) 65%, 
+        rgba(255, 255, 255, 0.8) 85%, 
+        transparent 100%);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* -------------------------------------------------------------
+       5. LIQUID GLASS TOPBAR (Image 1 & 3 fusion)
+       ------------------------------------------------------------- */
+    .tray-header {
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand-capsule-glass {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.75), rgba(6, 182, 212, 0.75));
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 10px 24px -2px rgba(139, 92, 246, 0.4), inset 0 1.5px 1px rgba(255, 255, 255, 0.7);
+    }
+    .brand-capsule-glass svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2;
+    }
+
+    .brand-title {
+      font-family: var(--font-editorial);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text-hero);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .offline-shield-pill {
+      font-family: var(--font-sans);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    }
+    .offline-shield-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Search Pill with Nested Glass Action (Image 1 replica) */
+    .header-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      max-width: 440px;
+    }
+    .glass-search-pill {
+      width: 100%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: var(--radius-pill);
+      padding: 5px 6px 5px 18px;
+      box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .glass-search-pill:focus-within {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(139, 92, 246, 0.6);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+    .glass-search-pill svg.search-ico {
+      width: 16px;
+      height: 16px;
+      color: var(--text-dim);
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .glass-search-pill input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-hero);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .glass-search-pill input::placeholder {
+      color: var(--text-dim);
+    }
+    .glass-search-pill kbd {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      margin-right: 8px;
+      pointer-events: none;
+    }
+    /* Nested Purple Action Button inside Pill (Image 1 replica) */
+    .pill-nested-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--jelly-purple-from), var(--jelly-purple-to));
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--jelly-purple-shadow), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+      transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+      flex-shrink: 0;
+    }
+    .pill-nested-btn:hover {
+      transform: scale(1.1) rotate(90deg);
+    }
+    .pill-nested-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2.5;
+    }
+
+    /* Top Right Header Controls */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* -------------------------------------------------------------
+       6. VOLUMETRIC JELLY BUTTONS (Image 1 replica)
+       ------------------------------------------------------------- */
+    .btn-jelly-primary {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 22px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.14) 100%),
+                  linear-gradient(135deg, var(--jelly-purple-from) 0%, var(--jelly-purple-to) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: 0 12px 26px -4px var(--jelly-purple-shadow), inset 0 1.5px 1px rgba(255, 255, 255, 0.85), inset 0 -1.5px 2px rgba(0, 0, 0, 0.25);
+      transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+      outline: none;
+      user-select: none;
+    }
+    .btn-jelly-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px -4px var(--jelly-purple-shadow), inset 0 1.5px 1px rgba(255, 255, 255, 1);
+    }
+    .btn-jelly-primary:active {
+      transform: translateY(2px) scale(0.98);
+      box-shadow: 0 4px 12px var(--jelly-purple-shadow);
+    }
+
+    .btn-jelly-secondary {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.14) 100%),
+                  linear-gradient(135deg, var(--jelly-cyan-from) 0%, var(--jelly-cyan-to) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: 0 12px 26px -4px var(--jelly-cyan-shadow), inset 0 1.5px 1px rgba(255, 255, 255, 0.85), inset 0 -1.5px 2px rgba(0, 0, 0, 0.25);
+      transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+      outline: none;
+      user-select: none;
+    }
+    .btn-jelly-secondary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px -4px var(--jelly-cyan-shadow);
+    }
+    .btn-jelly-secondary:active {
+      transform: translateY(2px) scale(0.98);
+    }
+
+    /* Glass Pill Icon Button */
+    .btn-glass-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: var(--text-hero);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .btn-glass-icon:hover {
+      background: rgba(255, 255, 255, 0.16);
+      transform: scale(1.06);
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+    .btn-glass-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 1.8;
+    }
+
+    /* -------------------------------------------------------------
+       7. MAIN SCROLLABLE CONTENT BODY & BENTO ARCHITECTURE
+       ------------------------------------------------------------- */
+    .tray-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .tray-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .tray-body::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 9999px;
+    }
+
+    /* -------------------------------------------------------------
+       8. HERO SPOTLIGHT & IRIDESCENT GLASS CARD (Image 1 & 2 Fusion)
+       ------------------------------------------------------------- */
+    .hero-split-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+    }
+
+    /* Left Editorial Sanctuary Hero (Nestwell Style) */
+    .hero-editorial-card {
+      background: linear-gradient(135deg, rgba(23, 37, 84, 0.4), rgba(15, 23, 42, 0.7));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-card);
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.3), var(--glass-inner-bevel);
+    }
+    .hero-editorial-card::after {
+      content: "";
+      position: absolute;
+      top: -30%;
+      right: -20%;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #38bdf8;
+      margin-bottom: 12px;
+    }
+    .hero-heading {
+      font-family: var(--font-editorial);
+      font-size: 38px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text-hero);
+      letter-spacing: -0.8px;
+      margin-bottom: 12px;
+    }
+    .hero-heading em {
+      font-style: italic;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin-bottom: 24px;
+    }
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* Right Iridescent Gradient Glass Card ("Modern Glass UI Design" Image 1 replica) */
+    .iridescent-glass-card {
+      background: linear-gradient(135deg, rgba(244, 114, 182, 0.28) 0%, rgba(139, 92, 246, 0.28) 50%, rgba(56, 189, 248, 0.3) 100%),
+                  rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: var(--radius-card);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 48px -12px rgba(139, 92, 246, 0.35), inset 0 1.5px 1.5px rgba(255, 255, 255, 0.7);
+    }
+    .iridescent-glass-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .iridescent-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .iridescent-badge span {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ffffff;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .iridescent-title {
+      font-family: var(--font-editorial);
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+    .iridescent-sub {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .iridescent-action-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .btn-upgrade-pill {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid #ffffff;
+      color: #0f172a;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), inset 0 1px 1px #ffffff;
+      transition: all 0.2s ease;
+    }
+    .btn-upgrade-pill:hover {
+      background: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    /* -------------------------------------------------------------
+       9. 4-PILLAR TACTILE GLASS KPI CARDS
+       ------------------------------------------------------------- */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .glass-kpi-card {
+      background: var(--glass-card-bg);
+      border: 1px solid var(--glass-slab-border);
+      border-radius: var(--radius-card);
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.25), var(--glass-inner-bevel);
+      transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .glass-kpi-card:hover {
+      background: var(--glass-card-hover);
+      transform: translateY(-3px);
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+    }
+    .kpi-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+    .kpi-circle-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+    .kpi-circle-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
+    .kpi-card-value {
+      font-family: var(--font-mono);
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--text-hero);
+      line-height: 1.1;
+      letter-spacing: -1px;
+    }
+    .kpi-card-footnote {
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* KPI Accents */
+    .kpi-total .kpi-circle-icon { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .kpi-valid .kpi-circle-icon { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .kpi-valid .kpi-card-value { color: #10b981; }
+    .kpi-expiring .kpi-circle-icon { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .kpi-expiring .kpi-card-value { color: #f59e0b; }
+    .kpi-expired .kpi-circle-icon { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+    .kpi-expired .kpi-card-value { color: #f43f5e; }
+
+    /* -------------------------------------------------------------
+       10. SEGMENTED FILTER DOCK & DISTRIBUTION SLIDER
+       ------------------------------------------------------------- */
+    .control-ribbon {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Liquid Glass Segmented Filter Bar */
+    .segmented-glass-bar {
+      display: inline-flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-pill);
+      padding: 4px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+    }
+    .filter-pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 7px 16px;
+      border-radius: var(--radius-pill);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1);
+      outline: none;
+      user-select: none;
+    }
+    .filter-pill-btn:hover {
+      color: var(--text-hero);
+    }
+    .filter-pill-btn.active {
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    }
+    .filter-count-badge {
+      background: rgba(255, 255, 255, 0.15);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: var(--radius-pill);
+      font-family: var(--font-mono);
+    }
+
+    /* Distribution Progress Bar Track */
+    .distribution-track-box {
+      background: var(--glass-card-bg);
+      border: 1px solid var(--glass-slab-border);
+      border-radius: var(--radius-card);
+      padding: 16px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: var(--glass-inner-bevel);
+    }
+    .dist-track {
+      height: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+      display: flex;
+      overflow: hidden;
+      padding: 1px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+    .dist-segment {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .seg-valid { background: linear-gradient(90deg, #10b981, #34d399); }
+    .seg-expiring { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .seg-expired { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+
+    /* -------------------------------------------------------------
+       11. INVENTORY MEDICINE CARDS & ROWS (Image 2 & 3 hybrid)
+       ------------------------------------------------------------- */
+    .medicine-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .med-card-row {
+      background: var(--glass-card-bg);
+      border: 1px solid var(--glass-slab-border);
+      border-radius: 18px;
+      padding: 16px 24px;
+      display: grid;
+      grid-template-columns: 2.2fr 1.2fr 1fr 1fr auto;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.2), var(--glass-inner-bevel);
+      transition: all 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .med-card-row:hover {
+      background: var(--glass-card-hover);
+      border-color: rgba(255, 255, 255, 0.32);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.45);
+    }
+
+    .med-ident-cell {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .med-3d-capsule {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.8) 50%, rgba(56, 189, 248, 0.8) 50%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      transform: rotate(45deg);
+      box-shadow: 0 6px 16px rgba(236, 72, 153, 0.3), inset 0 1.5px 1px rgba(255, 255, 255, 0.7);
+      flex-shrink: 0;
+      position: relative;
+    }
+    .med-3d-capsule::after {
+      content: "";
+      position: absolute;
+      top: 15%;
+      left: 15%;
+      width: 50%;
+      height: 30%;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 6px;
+    }
+    .med-text-primary {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-hero);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .med-dose-pill {
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+    .med-text-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    .med-meta-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .meta-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-body);
+    }
+    .meta-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .status-capsule-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3);
+      width: fit-content;
+    }
+    .status-capsule-badge svg {
+      width: 13px;
+      height: 13px;
+      stroke-width: 2.2;
+    }
+
+    .badge-valid {
+      background: rgba(16, 185, 129, 0.16);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .badge-expiring {
+      background: rgba(245, 158, 11, 0.16);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .badge-expired {
+      background: rgba(244, 63, 94, 0.16);
+      color: #f43f5e;
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+
+    /* -------------------------------------------------------------
+       12. ULTRA-TACTILE ADD MEDICINE MODAL
+       ------------------------------------------------------------- */
+    .modal-backdrop-blur {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-glass-tray {
+      background: var(--glass-slab-bg);
+      backdrop-filter: blur(40px) saturate(190%);
+      -webkit-backdrop-filter: blur(40px) saturate(190%);
+      border: 1px solid var(--glass-slab-border-highlight);
+      border-radius: 32px;
+      padding: 36px;
+      width: 100%;
+      max-width: 620px;
+      box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.6), inset 0 1.5px 1px rgba(255, 255, 255, 0.8);
+      position: relative;
+      animation: modalPop 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    @keyframes modalPop {
+      0% { transform: scale(0.92) translateY(20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .modal-title-text {
+      font-family: var(--font-editorial);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-hero);
+    }
+    .form-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .form-full-col {
+      grid-column: span 2;
+    }
+    .glass-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .glass-input-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+    .glass-text-field {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--text-hero);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s ease;
+    }
+    .glass-text-field:focus {
+      border-color: rgba(139, 92, 246, 0.7);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 16px rgba(139, 92, 246, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    }
+
+    .date-shortcut-ribbon {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .date-offset-chip {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: var(--text-muted);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
+      transition: all 0.15s ease;
+    }
+    .date-offset-chip:hover {
+      background: rgba(139, 92, 246, 0.25);
+      border-color: rgba(139, 92, 246, 0.5);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .modal-btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* -------------------------------------------------------------
+       13. RESPONSIVE ARCHITECTURE: TABLET & MOBILE
+       ------------------------------------------------------------- */
+    @media (max-width: 1024px) {
+      .spatial-viewport {
+        padding: 16px;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hero-split-grid {
+        grid-template-columns: 1fr;
+      }
+      .med-card-row {
+        grid-template-columns: 2fr 1fr 1fr auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .spatial-viewport {
+        padding: 8px 8px 90px; /* Room for floating bottom dock */
+        align-items: flex-start;
+      }
+      .glass-tray {
+        height: auto;
+        min-height: calc(100vh - 100px);
+        min-height: calc(100dvh - 100px);
+        border-radius: 24px;
+      }
+      .tray-header {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .header-center {
+        max-width: 100%;
+      }
+      .tray-body {
+        padding: 20px 16px;
+      }
+      .hero-editorial-card {
+        padding: 24px 20px;
+      }
+      .hero-heading {
+        font-size: 28px;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .med-card-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 16px;
+      }
+      .form-two-col {
+        grid-template-columns: 1fr;
+      }
+      .form-full-col {
+        grid-column: span 1;
+      }
+
+      /* Transform Detached Dock into Nestwell Floating Bottom Dock */
+      .spatial-dock {
+        position: fixed;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: row;
+        padding: 10px 20px;
+        border-radius: var(--radius-pill);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1.5px 1px rgba(255, 255, 255, 0.6);
+        z-index: 100;
+        background: rgba(18, 26, 47, 0.88);
+      }
+      .spatial-dock .tooltip {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fluid Iridescent Caustic Canvas -->
+  <div class="caustic-canvas" aria-hidden="true">
+    <div class="caustic-orb orb-1"></div>
+    <div class="caustic-orb orb-2"></div>
+    <div class="caustic-orb orb-3"></div>
+    <div class="caustic-orb orb-4"></div>
+  </div>
+
+  <div class="spatial-viewport">
+
+    <!-- VisionOS Spatial Detached Dock (Desktop) / Nestwell Bottom Dock (Mobile) -->
+    <nav class="spatial-dock" aria-label="Main Navigation">
+      <button class="dock-btn active" id="tab-btn-dashboard" onclick="switchSpatialTab('dashboard')" aria-label="Dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="3" y="3" width="7" height="9" rx="1.5"></rect>
+          <rect x="14" y="3" width="7" height="5" rx="1.5"></rect>
+          <rect x="14" y="12" width="7" height="9" rx="1.5"></rect>
+          <rect x="3" y="16" width="7" height="5" rx="1.5"></rect>
+        </svg>
+        <span class="tooltip">Spatial Dashboard</span>
+      </button>
+
+      <button class="dock-btn" id="tab-btn-inventory" onclick="switchSpatialTab('inventory')" aria-label="Inventory">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M4 6h16M4 12h16M4 18h16"></path>
+          <circle cx="2" cy="6" r="1" fill="currentColor"></circle>
+          <circle cx="2" cy="12" r="1" fill="currentColor"></circle>
+          <circle cx="2" cy="18" r="1" fill="currentColor"></circle>
+        </svg>
+        <span class="tooltip">Full Inventory</span>
+      </button>
+
+      <button class="dock-btn" onclick="openAddModal()" aria-label="Add Medicine">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="9"></circle>
+          <line x1="12" y1="8" x2="12" y2="16"></line>
+          <line x1="8" y1="12" x2="16" y2="12"></line>
+        </svg>
+        <span class="tooltip">Add Medicine Batch</span>
+      </button>
+
+      <button class="dock-btn" id="tab-btn-safety" onclick="switchSpatialTab('safety')" aria-label="Safety Intelligence">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <path d="M9 12l2 2 4-4"></path>
+        </svg>
+        <span class="tooltip">Disposal Intelligence</span>
+      </button>
+
+      <button class="dock-btn" id="tab-btn-settings" onclick="switchSpatialTab('settings')" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span class="tooltip">Offline Settings</span>
+      </button>
+    </nav>
+
+    <!-- Double-Bezel Liquid Glass Tray (Image 1 replica) -->
+    <main class="glass-tray">
+      
+      <!-- Tray Header: Liquid Glass Search & Jelly Actions -->
+      <header class="tray-header">
+        <div class="brand-group">
+          <div class="brand-capsule-glass">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="brand-title">
+              MEDSAFE
+              <span class="offline-shield-pill">Offline Vault</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Glass Search Pill with Nested Purple Action (Image 1 replica) -->
+        <div class="header-center">
+          <div class="glass-search-pill">
+            <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="live-search" placeholder="Search medicines, batches, forms..." oninput="handleInstantSearch(this.value)">
+            <kbd>Ctrl K</kbd>
+            <button class="pill-nested-btn" onclick="openAddModal()" title="Add Medicine">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- Tactile Sound Effect Haptics Button -->
+          <button class="btn-glass-icon" id="haptic-audio-btn" onclick="toggleAudioFeedback()" title="Toggle Spatial Audio Feedback">
+            <svg id="audio-icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+          </button>
+
+          <!-- Theme Mode Switcher -->
+          <button class="btn-glass-icon" onclick="toggleTheme()" title="Toggle Light / Dark Glass Theme">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+
+          <!-- Primary Volumetric Jelly Button (Image 1 replica) -->
+          <button class="btn-jelly-primary" onclick="openAddModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 16px; height: 16px; stroke-width: 2.2;">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Medicine
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Main Tray Body -->
+      <div class="tray-body">
+
+        <!-- VIEW 1: SPATIAL DASHBOARD -->
+        <div id="view-dashboard">
+          
+          <!-- Hero Section: Editorial Sanctuary + Iridescent Gradient Glass Card -->
+          <section class="hero-split-grid" style="margin-bottom: 24px;">
+            
+            <!-- Left Editorial Sanctuary (Nestwell inspired) -->
+            <div class="hero-editorial-card">
+              <div>
+                <span class="hero-eyebrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 14px; height: 14px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 14 14"></polyline>
+                  </svg>
+                  Pharmaceutical Longevity & Intelligence
+                </span>
+                <h1 class="hero-heading">
+                  Curate your <em>safe sanctuary</em> with zero-waste precision.
+                </h1>
+                <p class="hero-desc">
+                  MEDSAFE monitors medicine batch validity entirely on-device with zero telemetry. Never consume expired medication or discard usable medicine prematurely.
+                </p>
+              </div>
+
+              <div class="hero-cta-group">
+                <button class="btn-jelly-secondary" onclick="switchSpatialTab('inventory')">
+                  Explore Full Vault
+                </button>
+                <button class="btn-jelly-primary" id="toast-trigger-btn" onclick="sendWindowsToast()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 16px; height: 16px;">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                  </svg>
+                  Test Native Toast
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Iridescent Gradient Glass Card ("Modern Glass UI Design" Image 1 replica) -->
+            <div class="iridescent-glass-card">
+              <div>
+                <div class="iridescent-badge">
+                  <span>DISPOSAL ADVISORY</span>
+                  <div style="width: 10px; height: 10px; border-radius: 50%; background: #ffffff; box-shadow: 0 0 8px #ffffff;"></div>
+                </div>
+                <div class="iridescent-title">
+                  Safe Pharmaceutical Disposal System
+                </div>
+                <div class="iridescent-sub">
+                  Never flush expired antibiotics or NSAIDs down household drains. Follow FDA-standard coffee ground neutralization or drop-box programs.
+                </div>
+              </div>
+
+              <div class="iridescent-action-row">
+                <button class="btn-upgrade-pill" onclick="switchSpatialTab('safety')">
+                  ↑ View Disposal Guide
+                </button>
+                <span style="font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.9); font-family: var(--font-mono);">
+                  OFFLINE 100%
+                </span>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- 4 Tactile Glass KPI Cards -->
+          <section class="kpi-grid" style="margin-bottom: 24px;">
+            <div class="glass-kpi-card kpi-total">
+              <div class="kpi-card-header">
+                <span class="kpi-label">Total Inventory</span>
+                <div class="kpi-circle-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-card-value" id="kpi-total">6</div>
+              <div class="kpi-card-footnote">Active batches monitored</div>
+            </div>
+
+            <div class="glass-kpi-card kpi-valid">
+              <div class="kpi-card-header">
+                <span class="kpi-label">Safe & Valid</span>
+                <div class="kpi-circle-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-card-value" id="kpi-valid">3</div>
+              <div class="kpi-card-footnote">Within safe therapeutic shelf-life</div>
+            </div>
+
+            <div class="glass-kpi-card kpi-expiring">
+              <div class="kpi-card-header">
+                <span class="kpi-label">Expiring Soon</span>
+                <div class="kpi-circle-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-card-value" id="kpi-expiring">2</div>
+              <div class="kpi-card-footnote">Expiring within 30 days</div>
+            </div>
+
+            <div class="glass-kpi-card kpi-expired">
+              <div class="kpi-card-header">
+                <span class="kpi-label">Expired</span>
+                <div class="kpi-circle-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-card-value" id="kpi-expired">1</div>
+              <div class="kpi-card-footnote">Do not ingest • Safe disposal required</div>
+            </div>
+          </section>
+
+          <!-- Distribution Ratio Track -->
+          <div class="distribution-track-box" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 13px; font-weight: 700; color: var(--text-hero);">Batch Validity Distribution</span>
+              <span id="dist-ratio-summary" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);">
+                50% Valid • 33% Approaching • 17% Expired
+              </span>
+            </div>
+            <div class="dist-track">
+              <div class="dist-segment seg-valid" id="track-valid" style="width: 50%;"></div>
+              <div class="dist-segment seg-expiring" id="track-expiring" style="width: 33%;"></div>
+              <div class="dist-segment seg-expired" id="track-expired" style="width: 17%;"></div>
+            </div>
+          </div>
+
+          <!-- Urgent Priority Expiries Table (Liquid Glass Rows) -->
+          <section>
+            <div class="control-ribbon" style="margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 17px; font-weight: 700; color: var(--text-hero); display: flex; align-items: center; gap: 8px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 18px; height: 18px; color: #f59e0b;">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  Immediate Priority Attention
+                </h3>
+                <p style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
+                  Medicines requiring immediate household review or safe disposal
+                </p>
+              </div>
+
+              <!-- Segmented Filter Bar -->
+              <div class="segmented-glass-bar">
+                <button class="filter-pill-btn active" onclick="filterByStatus('all', this)">
+                  All Batches <span class="filter-count-badge" id="badge-all">6</span>
+                </button>
+                <button class="filter-pill-btn" onclick="filterByStatus('valid', this)">
+                  Valid <span class="filter-count-badge" id="badge-valid">3</span>
+                </button>
+                <button class="filter-pill-btn" onclick="filterByStatus('expiring', this)">
+                  Expiring <span class="filter-count-badge" id="badge-expiring">2</span>
+                </button>
+                <button class="filter-pill-btn" onclick="filterByStatus('expired', this)">
+                  Expired <span class="filter-count-badge" id="badge-expired">1</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dynamic Medicine Cards Stack -->
+            <div class="medicine-stack" id="dashboard-urgent-stack">
+              <!-- Rendered via JavaScript -->
+            </div>
+          </section>
+
+        </div>
+
+        <!-- VIEW 2: FULL INVENTORY & ADVANCED FILTERING -->
+        <div id="view-inventory" style="display: none;">
+          <div class="control-ribbon" style="margin-bottom: 20px;">
+            <div>
+              <h2 style="font-family: var(--font-editorial); font-size: 26px; color: var(--text-hero);">
+                Master Pharmaceutical Vault
+              </h2>
+              <p style="font-size: 13px; color: var(--text-muted);" id="inventory-header-count">
+                Displaying all registered batches stored in local SQLite database
+              </p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn-jelly-secondary" onclick="exportDataCSV()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 15px; height: 15px;">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export CSV
+              </button>
+              <button class="btn-jelly-primary" onclick="openAddModal()">
+                + New Medicine
+              </button>
+            </div>
+          </div>
+
+          <div class="medicine-stack" id="master-inventory-stack">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- VIEW 3: DISPOSAL SAFETY INTELLIGENCE -->
+        <div id="view-safety" style="display: none;">
+          <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+            <div class="hero-editorial-card">
+              <span class="hero-eyebrow">Eco-Toxicological Safety Standard</span>
+              <h2 class="hero-heading">How to responsibly dispose of expired medication.</h2>
+              <p class="hero-desc">
+                Improper disposal of antibiotics, antidepressants, and hormones contaminates regional water tables and encourages antimicrobial resistance. MedSafe enforces safe on-premise neutralization.
+              </p>
+            </div>
+
+            <div class="glass-kpi-card" style="padding: 24px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">
+                Method 1: Household Neutralization
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                1. Mix uncrushed tablets or liquid medication with an unpalatable substance (used coffee grounds, dirt, or cat litter).<br>
+                2. Seal the mixture in a durable ziplock bag or airtight container.<br>
+                3. Black out patient identification and prescription details on the original bottle.<br>
+                4. Discard the sealed mixture with standard household waste.
+              </p>
+            </div>
+
+            <div class="glass-kpi-card" style="padding: 24px;">
+              <h3 style="font-size: 16px; font-weight: 700; color: #10b981; margin-bottom: 8px;">
+                Method 2: Authorized Pharmacy Take-Back Dropboxes
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                Most certified hospital pharmacies and retail pharmacies offer secure, anonymous drop-box kiosks for expired controlled medications and schedule IV compounds.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 4: OFFLINE PRIVACY & APPLICATION SETTINGS -->
+        <div id="view-settings" style="display: none;">
+          <div style="max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+            <div class="glass-kpi-card" style="padding: 28px;">
+              <h2 style="font-family: var(--font-editorial); font-size: 24px; color: var(--text-hero); margin-bottom: 8px;">
+                Architecture & Privacy Guarantees
+              </h2>
+              <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">
+                MEDSAFE operates with 100% strict offline execution. Your medicine inventory is stored exclusively on your local device in encrypted/local SQLite databases. No data packets ever leave your computer.
+              </p>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn-jelly-secondary" onclick="exportDataCSV()">Export Database (CSV)</button>
+                <button class="btn-jelly-secondary" onclick="exportDataJSON()">Export Database (JSON)</button>
+                <button class="btn-jelly-primary" onclick="sendWindowsToast()">Test System Notifications</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Ultra-Tactile Add Medicine Modal (Image 1 replica) -->
+  <div class="modal-backdrop-blur" id="add-modal" onclick="handleBackdropClick(event)">
+    <div class="modal-glass-tray" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title-text">Register New Medicine</div>
+          <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
+            Batch details will be persisted to your offline SQLite vault
+          </div>
+        </div>
+        <button class="btn-glass-icon" onclick="closeAddModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="form-two-col">
+        <div class="glass-input-group">
+          <label class="glass-input-label">Medicine Name *</label>
+          <input type="text" class="glass-text-field" id="m-name" placeholder="e.g. Amoxicillin, Paracetamol">
+        </div>
+
+        <div class="glass-input-group">
+          <label class="glass-input-label">Strength / Concentration</label>
+          <input type="text" class="glass-text-field" id="m-strength" placeholder="e.g. 500mg, 10mg/5mL">
+        </div>
+
+        <div class="glass-input-group">
+          <label class="glass-input-label">Manufacturer / Brand</label>
+          <input type="text" class="glass-text-field" id="m-mfg" placeholder="e.g. Pfizer, GSK, Cipla">
+        </div>
+
+        <div class="glass-input-group">
+          <label class="glass-input-label">Formulation Type</label>
+          <input type="text" class="glass-text-field" id="m-type" placeholder="Tablet, Capsule, Syrup, Drops">
+        </div>
+
+        <div class="glass-input-group form-full-col">
+          <label class="glass-input-label">Expiry Date (YYYY-MM-DD) *</label>
+          <input type="date" class="glass-text-field" id="m-exp">
+          
+          <!-- Quick Date Offset Shortcuts -->
+          <div class="date-shortcut-ribbon">
+            <span class="date-offset-chip" onclick="applyDateOffset(30)">+30 Days</span>
+            <span class="date-offset-chip" onclick="applyDateOffset(90)">+90 Days</span>
+            <span class="date-offset-chip" onclick="applyDateOffset(180)">+6 Months</span>
+            <span class="date-offset-chip" onclick="applyDateOffset(365)">+1 Year</span>
+            <span class="date-offset-chip" onclick="applyDateOffset(730)">+2 Years</span>
+          </div>
+        </div>
+
+        <div class="glass-input-group">
+          <label class="glass-input-label">Batch / Lot Number</label>
+          <input type="text" class="glass-text-field" id="m-batch" placeholder="e.g. BX-9842">
+        </div>
+
+        <div class="glass-input-group">
+          <label class="glass-input-label">Pack Quantity</label>
+          <input type="number" class="glass-text-field" id="m-qty" placeholder="e.g. 24" value="10">
+        </div>
+
+        <div class="glass-input-group form-full-col">
+          <label class="glass-input-label">Storage Location</label>
+          <input type="text" class="glass-text-field" id="m-loc" placeholder="Home First Aid Box, Refrigerator Shelf A">
+        </div>
+      </div>
+
+      <div class="modal-btn-row">
+        <button class="btn-jelly-secondary" onclick="closeAddModal()">Cancel</button>
+        <button class="btn-jelly-primary" onclick="submitNewMedicine()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" style="width: 16px; height: 16px;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Save to Vault
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- -------------------------------------------------------------
+       14. INTERACTION LOGIC & SPATIAL AUDIO HAPTICS
+       ------------------------------------------------------------- -->
+  <script>
+    let masterInventory = [];
+    let currentFilter = 'all';
+    let audioEnabled = true;
+    let audioCtx = null;
+
+    // Web Audio Synthesizer for spatial acoustic feedback
+    function playSpatialSound(frequency = 600, duration = 0.08, type = 'sine') {
+      if (!audioEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(frequency * 0.5, audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        // AudioContext silent fallback
+      }
+    }
+
+    function toggleAudioFeedback() {
+      audioEnabled = !audioEnabled;
+      const icon = document.getElementById('haptic-audio-btn');
+      if (audioEnabled) {
+        icon.style.opacity = '1';
+        playSpatialSound(880, 0.12);
+      } else {
+        icon.style.opacity = '0.4';
+      }
+    }
+
+    // Load data from live Python server
+    async function fetchVaultData() {
+      try {
+        const sumRes = await fetch('/api/summary');
+        const summary = await sumRes.json();
+
+        // Update KPI Counters
+        document.getElementById('kpi-total').innerText = summary.total_active_batches;
+        document.getElementById('kpi-valid').innerText = summary.valid_batches;
+        document.getElementById('kpi-expiring').innerText = summary.expiring_soon_batches;
+        document.getElementById('kpi-expired').innerText = summary.expired_batches;
+
+        document.getElementById('badge-all').innerText = summary.total_active_batches;
+        document.getElementById('badge-valid').innerText = summary.valid_batches;
+        document.getElementById('badge-expiring').innerText = summary.expiring_soon_batches;
+        document.getElementById('badge-expired').innerText = summary.expired_batches;
+
+        // Calculate distribution ratio percentages
+        const total = summary.total_active_batches || 1;
+        const vPct = Math.round((summary.valid_batches / total) * 100);
+        const ePct = Math.round((summary.expiring_soon_batches / total) * 100);
+        const xPct = Math.max(0, 100 - vPct - ePct);
+
+        document.getElementById('track-valid').style.width = vPct + '%';
+        document.getElementById('track-expiring').style.width = ePct + '%';
+        document.getElementById('track-expired').style.width = xPct + '%';
+
+        document.getElementById('dist-ratio-summary').innerText = 
+          `${vPct}% Valid • ${ePct}% Approaching • ${xPct}% Expired`;
+
+        // Render Urgent Stack
+        renderMedicineCards('dashboard-urgent-stack', summary.urgent_items);
+
+        // Fetch Full Master Inventory
+        const invRes = await fetch('/api/inventory');
+        masterInventory = await invRes.json();
+        renderMedicineCards('master-inventory-stack', masterInventory);
+        document.getElementById('inventory-header-count').innerText = 
+          `Displaying ${masterInventory.length} registered batches stored in local SQLite database`;
+
+      } catch (err) {
+        console.error('Failed to communicate with MEDSAFE backend:', err);
+      }
+    }
+
+    function renderMedicineCards(targetId, items) {
+      const container = document.getElementById(targetId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!items || items.length === 0) {
+        container.innerHTML = `
+          <div style="padding: 40px; text-align: center; color: var(--text-dim); background: var(--glass-card-bg); border-radius: 16px; border: 1px dashed var(--glass-slab-border);">
+            No medicines match the selected filter.
+          </div>
+        `;
+        return;
+      }
+
+      items.forEach(it => {
+        let badgeClass = 'badge-valid';
+        let badgeText = 'Safe & Valid';
+        let badgeIcon = `<polyline points="20 6 9 17 4 12"></polyline>`;
+
+        if (it.expiry_status === 'expired') {
+          badgeClass = 'badge-expired';
+          badgeText = 'Expired';
+          badgeIcon = `<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>`;
+        } else if (it.expiry_status === 'expiring_soon') {
+          badgeClass = 'badge-expiring';
+          badgeText = 'Expiring Soon';
+          badgeIcon = `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'med-card-row';
+        card.innerHTML = `
+          <div class="med-ident-cell">
+            <div class="med-3d-capsule"></div>
+            <div>
+              <div class="med-text-primary">
+                ${escapeHtml(it.medicine_name)}
+                ${it.strength ? `<span class="med-dose-pill">${escapeHtml(it.strength)}</span>` : ''}
+              </div>
+              <div class="med-text-sub">
+                ${escapeHtml(it.manufacturer || 'Standard Pharma')} ${it.medicine_type ? '• ' + escapeHtml(it.medicine_type) : ''}
+              </div>
+            </div>
+          </div>
+
+          <div class="med-meta-col">
+            <span class="meta-title">Batch: ${escapeHtml(it.batch_number || 'LOT-AUTO')}</span>
+            <span class="meta-sub">Qty: ${it.quantity} units</span>
+          </div>
+
+          <div class="med-meta-col">
+            <span class="meta-title">${escapeHtml(it.storage_location || 'General Storage')}</span>
+            <span class="meta-sub">Location</span>
+          </div>
+
+          <div class="med-meta-col">
+            <span class="meta-title" style="color: ${it.expiry_status === 'expired' ? '#f43f5e' : (it.expiry_status === 'expiring_soon' ? '#f59e0b' : '#10b981')}">
+              ${escapeHtml(it.expiry_date)}
+            </span>
+            <span class="meta-sub">${escapeHtml(it.expiry_label || '')}</span>
+          </div>
+
+          <div>
+            <span class="status-capsule-badge ${badgeClass}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                ${badgeIcon}
+              </svg>
+              ${badgeText}
+            </span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function handleInstantSearch(query) {
+      playSpatialSound(500, 0.04);
+      const q = query.toLowerCase().trim();
+      const filtered = masterInventory.filter(it => 
+        it.medicine_name.toLowerCase().includes(q) ||
+        (it.batch_number && it.batch_number.toLowerCase().includes(q)) ||
+        (it.storage_location && it.storage_location.toLowerCase().includes(q)) ||
+        (it.manufacturer && it.manufacturer.toLowerCase().includes(q))
+      );
+      renderMedicineCards('master-inventory-stack', filtered);
+      renderMedicineCards('dashboard-urgent-stack', filtered);
+    }
+
+    function filterByStatus(status, btn) {
+      playSpatialSound(750, 0.06);
+      currentFilter = status;
+      document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      if (status === 'all') {
+        renderMedicineCards('dashboard-urgent-stack', masterInventory);
+      } else {
+        const filtered = masterInventory.filter(it => it.expiry_status === status);
+        renderMedicineCards('dashboard-urgent-stack', filtered);
+      }
+    }
+
+    function switchSpatialTab(tab) {
+      playSpatialSound(620, 0.08);
+      ['dashboard', 'inventory', 'safety', 'settings'].forEach(t => {
+        const el = document.getElementById(`view-${t}`);
+        if (el) el.style.display = (t === tab) ? 'block' : 'none';
+      });
+
+      document.querySelectorAll('.dock-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById(`tab-btn-${tab}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function openAddModal() {
+      playSpatialSound(800, 0.08);
+      document.getElementById('add-modal').style.display = 'flex';
+      setTimeout(() => document.getElementById('m-name').focus(), 100);
+    }
+
+    function closeAddModal() {
+      playSpatialSound(400, 0.08);
+      document.getElementById('add-modal').style.display = 'none';
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target.id === 'add-modal') closeAddModal();
+    }
+
+    function applyDateOffset(days) {
+      playSpatialSound(720, 0.05);
+      const d = new Date();
+      d.setDate(d.getDate() + days);
+      document.getElementById('m-exp').value = d.toISOString().split('T')[0];
+    }
+
+    async function submitNewMedicine() {
+      const payload = {
+        name: document.getElementById('m-name').value.trim(),
+        strength: document.getElementById('m-strength').value.trim(),
+        manufacturer: document.getElementById('m-mfg').value.trim(),
+        medicine_type: document.getElementById('m-type').value.trim(),
+        expiry_date: document.getElementById('m-exp').value,
+        batch_number: document.getElementById('m-batch').value.trim(),
+        quantity: document.getElementById('m-qty').value || '10',
+        storage_location: document.getElementById('m-loc').value.trim()
+      };
+
+      if (!payload.name || !payload.expiry_date) {
+        alert('Please fill in both Medicine Name and Expiry Date');
+        return;
+      }
+
+      playSpatialSound(950, 0.12);
+      try {
+        const res = await fetch('/api/medicine', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeAddModal();
+          // Reset form
+          ['m-name', 'm-strength', 'm-mfg', 'm-type', 'm-exp', 'm-batch', 'm-loc'].forEach(id => {
+            document.getElementById(id).value = '';
+          });
+          fetchVaultData();
+        } else {
+          alert(data.error || 'Failed to register medicine.');
+        }
+      } catch (err) {
+        alert('Communication error with backend');
+      }
+    }
+
+    async function sendWindowsToast() {
+      playSpatialSound(880, 0.1);
+      const btn = document.getElementById('toast-trigger-btn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Sending...';
+
+      try {
+        const res = await fetch('/api/test-notification', { method: 'POST' });
+        const data = await res.json();
+        btn.innerHTML = data.success ? '✓ Native Toast Sent' : '⚠️ Failed to Send';
+        setTimeout(() => { btn.innerHTML = originalText; }, 2600);
+      } catch (e) {
+        btn.innerHTML = '⚠️ Network Error';
+        setTimeout(() => { btn.innerHTML = originalText; }, 2600);
+      }
+    }
+
+    function toggleTheme() {
+      playSpatialSound(650, 0.07);
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('medsafe_theme', next);
+    }
+
+    function exportDataCSV() {
+      playSpatialSound(700, 0.08);
+      if (!masterInventory.length) return alert('No data to export');
+      const headers = ['Batch ID', 'Medicine Name', 'Strength', 'Type', 'Manufacturer', 'Batch Number', 'Expiry Date', 'Quantity', 'Location', 'Status'];
+      const rows = masterInventory.map(it => [
+        it.batch_id,
+        `"${it.medicine_name}"`,
+        `"${it.strength || ''}"`,
+        `"${it.medicine_type || ''}"`,
+        `"${it.manufacturer || ''}"`,
+        `"${it.batch_number || ''}"`,
+        it.expiry_date,
+        it.quantity,
+        `"${it.storage_location || ''}"`,
+        it.expiry_status
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      downloadFile(csv, 'medsafe-vault-inventory.csv', 'text/csv');
+    }
+
+    function exportDataJSON() {
+      playSpatialSound(700, 0.08);
+      const json = JSON.stringify(masterInventory, null, 2);
+      downloadFile(json, 'medsafe-vault-backup.json', 'application/json');
+    }
+
+    function downloadFile(content, fileName, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Keyboard shortcut: Ctrl + K focuses search
+    window.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        document.getElementById('live-search').focus();
+      }
+      if (e.key === 'Escape') {
+        closeAddModal();
+      }
+    });
+
+    // Initialize theme from storage or default to light
+    const savedTheme = localStorage.getItem('medsafe_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Initialize data
+    fetchVaultData();
+  </script>
+</body>
+</html>

@@ -4,8 +4,10 @@ Follows strict frontend/backend separation:
 - Gathers user input from UI widgets.
 - Forwards payload directly to MedicineService.
 - Never performs SQL queries or direct database access.
+- Provides quick-pick expiry buttons (+1M, +3M, +6M, +1Y, +2Y) for instant date entry.
 """
 
+import datetime
 from typing import Callable, Optional
 import customtkinter as ctk
 
@@ -23,12 +25,14 @@ from frontend.config import (
     COLOR_INPUT_BORDER,
     COLOR_PRIMARY,
     COLOR_PRIMARY_HOVER,
+    COLOR_PRIMARY_SUBTLE,
     COLOR_TEXT_MUTED,
     COLOR_TEXT_PRIMARY,
     COLOR_TEXT_SECONDARY,
     FONT_BODY,
     FONT_BODY_BOLD,
     FONT_CAPTION,
+    FONT_CAPTION_BOLD,
     FONT_SECTION,
     STATUS_EXPIRED_BG,
     STATUS_EXPIRED_TEXT,
@@ -101,7 +105,7 @@ class MedicineForm(ctk.CTkFrame):
 
         ctk.CTkLabel(
             med_card,
-            text="General identification of the medication",
+            text="General identity and profile of the drug",
             font=FONT_CAPTION,
             text_color=COLOR_TEXT_MUTED,
             anchor="w",
@@ -125,13 +129,13 @@ class MedicineForm(ctk.CTkFrame):
         )
         self.name_entry.pack(fill="x", padx=18, pady=(0, 12))
 
-        # Strength (Optional)
-        ctk.CTkLabel(med_card, text="Strength (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
+        # Strength / Dosage (Optional)
+        ctk.CTkLabel(med_card, text="Strength / Dosage (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
             fill="x", padx=18, pady=(4, 2)
         )
         self.strength_entry = ctk.CTkEntry(
             med_card,
-            placeholder_text="e.g. 500 mg, 10 ml, 2%",
+            placeholder_text="e.g. 500mg, 10ml, 5%",
             font=FONT_BODY,
             height=36,
             fg_color=COLOR_INPUT_BG,
@@ -141,13 +145,13 @@ class MedicineForm(ctk.CTkFrame):
         )
         self.strength_entry.pack(fill="x", padx=18, pady=(0, 12))
 
-        # Manufacturer (Optional)
-        ctk.CTkLabel(med_card, text="Manufacturer (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
+        # Manufacturer / Brand (Optional)
+        ctk.CTkLabel(med_card, text="Brand / Manufacturer (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
             fill="x", padx=18, pady=(4, 2)
         )
         self.manufacturer_entry = ctk.CTkEntry(
             med_card,
-            placeholder_text="e.g. Pfizer, GSK, Cipla",
+            placeholder_text="e.g. GSK, Pfizer, Cipla",
             font=FONT_BODY,
             height=36,
             fg_color=COLOR_INPUT_BG,
@@ -157,7 +161,7 @@ class MedicineForm(ctk.CTkFrame):
         )
         self.manufacturer_entry.pack(fill="x", padx=18, pady=(0, 12))
 
-        # Medicine Type (Optional)
+        # Medicine Type (Dropdown)
         ctk.CTkLabel(med_card, text="Form / Type (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
             fill="x", padx=18, pady=(4, 2)
         )
@@ -170,7 +174,7 @@ class MedicineForm(ctk.CTkFrame):
             button_color=COLOR_PRIMARY,
             button_hover_color=COLOR_PRIMARY_HOVER,
             dropdown_fg_color=COLOR_CARD,
-            dropdown_hover_color=COLOR_INPUT_BG,
+            dropdown_hover_color=COLOR_CARD,
             dropdown_text_color=COLOR_TEXT_PRIMARY,
             text_color=COLOR_TEXT_PRIMARY,
             corner_radius=8,
@@ -179,12 +183,12 @@ class MedicineForm(ctk.CTkFrame):
         self.type_menu.pack(fill="x", padx=18, pady=(0, 12))
 
         # Barcode (Optional)
-        ctk.CTkLabel(med_card, text="Barcode (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
+        ctk.CTkLabel(med_card, text="Barcode / GTIN (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
             fill="x", padx=18, pady=(4, 2)
         )
         self.barcode_entry = ctk.CTkEntry(
             med_card,
-            placeholder_text="e.g. 8901234567890",
+            placeholder_text="e.g. 8901030000000",
             font=FONT_BODY,
             height=36,
             fg_color=COLOR_INPUT_BG,
@@ -195,7 +199,7 @@ class MedicineForm(ctk.CTkFrame):
         self.barcode_entry.pack(fill="x", padx=18, pady=(0, 12))
 
         # Notes (Optional)
-        ctk.CTkLabel(med_card, text="Notes (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
+        ctk.CTkLabel(med_card, text="Usage Notes / Instructions (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
             fill="x", padx=18, pady=(4, 2)
         )
         self.notes_entry = ctk.CTkEntry(
@@ -249,7 +253,33 @@ class MedicineForm(ctk.CTkFrame):
             border_width=1,
             corner_radius=8,
         )
-        self.expiry_entry.pack(fill="x", padx=18, pady=(0, 12))
+        self.expiry_entry.pack(fill="x", padx=18, pady=(0, 6))
+
+        # Quick Date Shortcut Pills (+1M, +3M, +6M, +1Y, +2Y)
+        quick_dates_box = ctk.CTkFrame(batch_card, fg_color="transparent")
+        quick_dates_box.pack(fill="x", padx=18, pady=(0, 10))
+
+        shortcuts = [
+            ("+1M", 30),
+            ("+3M", 90),
+            ("+6M", 182),
+            ("+1Y", 365),
+            ("+2Y", 730),
+        ]
+        for label, days in shortcuts:
+            btn = ctk.CTkButton(
+                quick_dates_box,
+                text=label,
+                font=FONT_CAPTION_BOLD,
+                width=42,
+                height=24,
+                corner_radius=6,
+                fg_color=COLOR_BTN_SECONDARY,
+                hover_color=COLOR_PRIMARY_SUBTLE,
+                text_color=COLOR_BTN_SECONDARY_TEXT,
+                command=lambda d=days: self._set_quick_date(d),
+            )
+            btn.pack(side="left", padx=(0, 6))
 
         # Batch Number (Optional)
         ctk.CTkLabel(batch_card, text="Batch / Lot Number (Optional)", font=FONT_BODY, text_color=COLOR_TEXT_SECONDARY, anchor="w").pack(
@@ -331,6 +361,12 @@ class MedicineForm(ctk.CTkFrame):
             command=self.clear_form,
         )
         self.clear_btn.grid(row=0, column=1, sticky="ew", padx=(8, 0))
+
+    def _set_quick_date(self, days_ahead: int) -> None:
+        """Calculate and insert date offset into expiry entry."""
+        target = datetime.date.today() + datetime.timedelta(days=days_ahead)
+        self.expiry_entry.delete(0, "end")
+        self.expiry_entry.insert(0, target.isoformat())
 
     def _show_feedback(self, message: str, is_error: bool = False) -> None:
         """Display an inline user feedback banner."""

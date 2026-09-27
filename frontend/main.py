@@ -84,7 +84,7 @@ def run_gui() -> int:
     from frontend.app import MedSafeApp
 
     # Set default CustomTkinter global appearance
-    ctk.set_appearance_mode("System")
+    ctk.set_appearance_mode("Light")
     ctk.set_default_color_theme("blue")
 
     # Start the desktop window loop

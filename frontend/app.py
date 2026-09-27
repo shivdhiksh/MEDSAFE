@@ -5,6 +5,7 @@ modern top header with search and contextual actions, and seamless view routing 
 Dashboard, Inventory, Add Medicine, Medicine Detail, Settings, and About views.
 """
 
+import sys
 import threading
 from typing import Optional, Union
 import customtkinter as ctk
